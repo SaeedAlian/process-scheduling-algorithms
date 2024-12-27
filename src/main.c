@@ -18,10 +18,10 @@ int main() {
   print_proc(p4);
 
   queue *q = new_queue(5);
-  enqueue(q, *p1);
-  enqueue(q, *p3);
-  enqueue(q, *p2);
-  enqueue(q, *p4);
+  enqueue(q, p1);
+  enqueue(q, p3);
+  enqueue(q, p2);
+  enqueue(q, p4);
   print_queue(q);
 
   return 0;

@@ -7,7 +7,7 @@ queue *new_queue(int max) {
 
   q->max = max;
   q->l = 0;
-  q->items = (proc *)malloc(sizeof(proc) * q->max);
+  q->items = (proc **)malloc(sizeof(proc *) * q->max);
   if (q->items == NULL) {
     free(q);
     return NULL;
@@ -21,16 +21,16 @@ void heapify_down(queue *q, int index) {
   int left = index * 2 + 1;
   int right = index * 2 + 2;
 
-  if (left < q->max && q->items[left].pri > q->items[index].pri) {
+  if (left < q->max && q->items[left]->pri > q->items[index]->pri) {
     largest = left;
   }
 
-  if (right < q->max && q->items[right].pri > q->items[index].pri) {
+  if (right < q->max && q->items[right]->pri > q->items[index]->pri) {
     largest = right;
   }
 
   if (largest != index) {
-    swap_procs(&q->items[largest], &q->items[index]);
+    swap_procs(q->items[largest], q->items[index]);
     heapify_down(q, largest);
   }
 }
@@ -38,18 +38,18 @@ void heapify_down(queue *q, int index) {
 void heapify_up(queue *q, int index) {
   int parent = (index - 1) / 2;
 
-  while (index > 0 && q->items[index].pri > q->items[parent].pri) {
-    swap_procs(&q->items[parent], &q->items[index]);
+  while (index > 0 && q->items[index]->pri > q->items[parent]->pri) {
+    swap_procs(q->items[parent], q->items[index]);
 
     index = parent;
     parent = (index - 1) / 2;
   }
 }
 
-int enqueue(queue *q, proc p) {
+int enqueue(queue *q, proc *p) {
   if (queue_is_full(q)) {
     q->max *= 2;
-    proc *temp = (proc *)realloc(q->items, sizeof(proc) * q->max);
+    proc **temp = (proc **)realloc(q->items, sizeof(proc *) * q->max);
     if (temp == NULL) {
       return -1;
     }
@@ -62,12 +62,12 @@ int enqueue(queue *q, proc p) {
   return 0;
 }
 
-int dequeue(queue *q, proc *out) {
+int dequeue(queue *q, proc **out) {
   if (queue_is_empty(q)) {
     return -1;
   }
 
-  proc top = q->items[0];
+  proc *top = q->items[0];
   q->items[0] = q->items[q->l - 1];
   q->l--;
 
@@ -76,7 +76,7 @@ int dequeue(queue *q, proc *out) {
   return 0;
 }
 
-int peek_queue(queue *q, proc *out) {
+int peek_queue(queue *q, proc **out) {
   if (queue_is_empty(q))
     return -1;
 
@@ -93,9 +93,10 @@ void print_queue(queue *q) {
   printf("   ");
 
   for (int i = 0; i < q->l; i++) {
-    print_proc(&q->items[i]);
+    print_proc(q->items[i]);
     printf("   ");
   }
+  printf("\n");
 }
 
 void free_queue(queue *q) {

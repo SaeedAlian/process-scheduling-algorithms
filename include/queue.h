@@ -8,7 +8,7 @@
 typedef struct queue {
   int l;
   int max;
-  proc *items;
+  proc **items;
 } queue;
 
 void swap_procs(proc *a, proc *b);
@@ -16,9 +16,9 @@ void swap_procs(proc *a, proc *b);
 queue *new_queue(int max);
 void heapify_down(queue *q, int index);
 void heapify_up(queue *q, int index);
-int enqueue(queue *q, proc p);
-int dequeue(queue *q, proc *p);
-int peek_queue(queue *q, proc *out);
+int enqueue(queue *q, proc *p);
+int dequeue(queue *q, proc **out);
+int peek_queue(queue *q, proc **out);
 int queue_is_full(queue *q);
 int queue_is_empty(queue *q);
 void print_queue(queue *q);
