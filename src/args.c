@@ -143,31 +143,29 @@ int *tokenize_algorithms(char *algorithms, int *length) {
         tokenized = temp;
       }
 
-      if (l > 0) {
-        if (strcmp(alg, "fcfs") == 0) {
-          tokenized[k++] = FCFS;
-        } else if (strcmp(alg, "sjf") == 0) {
-          tokenized[k++] = SJF;
-        } else if (strcmp(alg, "hrrn") == 0) {
-          tokenized[k++] = HRRN;
-        } else if (strcmp(alg, "ps") == 0) {
-          tokenized[k++] = PS;
-        } else if (strcmp(alg, "srjf") == 0) {
-          tokenized[k++] = SRJF;
-        } else if (strcmp(alg, "lrjf") == 0) {
-          tokenized[k++] = LRJF;
-        } else if (strcmp(alg, "rr") == 0) {
-          tokenized[k++] = RR;
-        } else if (strcmp(alg, "ljf") == 0) {
-          tokenized[k++] = LJF;
-        } else {
-          fprintf(stderr, "Error: invalid algorithm %s\n", alg);
-          free(tokenized);
-          return NULL;
-        }
-
-        l = 0;
+      if (strcmp(alg, "fcfs") == 0) {
+        tokenized[k++] = FCFS;
+      } else if (strcmp(alg, "sjf") == 0) {
+        tokenized[k++] = SJF;
+      } else if (strcmp(alg, "hrrn") == 0) {
+        tokenized[k++] = HRRN;
+      } else if (strcmp(alg, "ps") == 0) {
+        tokenized[k++] = PS;
+      } else if (strcmp(alg, "srjf") == 0) {
+        tokenized[k++] = SRJF;
+      } else if (strcmp(alg, "lrjf") == 0) {
+        tokenized[k++] = LRJF;
+      } else if (strcmp(alg, "rr") == 0) {
+        tokenized[k++] = RR;
+      } else if (strcmp(alg, "ljf") == 0) {
+        tokenized[k++] = LJF;
+      } else {
+        fprintf(stderr, "Error: invalid algorithm %s\n", alg);
+        free(tokenized);
+        return NULL;
       }
+
+      l = 0;
     } else if (c >= 'A' && c <= 'Z') {
       if (l >= 254) {
         fprintf(stderr, "Error: invalid algorithm %s\n", alg);
