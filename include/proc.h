@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX_PROC 1024
+
 typedef struct proc {
   int pid;
   int pri;
