@@ -9,7 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define PROMPT_MAX_DEFAULT 1024
+#define PROMPT_MAX_DEFAULT 256
 #define PROC_INPUT_MAX_DEFAULT 8
 #define NUM_PROC_INPUT_MAX_DEFAULT 4
 #define NO_INPUT -1
