@@ -10,7 +10,7 @@ int get_input(const char *prmpt, char *buff, size_t size) {
 
   int l = strlen(buff);
 
-  if (l == 0)
+  if (l == 0 || buff[0] == 10)
     return EMPTY_INPUT;
 
   if (buff[l - 1] != '\n') {
