@@ -23,7 +23,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                 "Error: invalid input received, please check the input "
                 "file to be correct\nThe first line of the input file must "
                 "contain: 'PID,PRI,AT,BT' (you can change the order too)\n");
-        return 1;
+        return 0;
       }
 
       header[i++] = ch;
@@ -36,7 +36,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
               "Error: invalid input received, please check the input "
               "file to be correct\nThe first line of the input file must "
               "contain: 'PID,PRI,AT,BT' (you can change the order too)\n");
-      return 1;
+      return 0;
     }
 
     int pid_index, at_index, bt_index, pri_index;
@@ -56,7 +56,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                   "Error: invalid input received, please check the input "
                   "file to be correct\nThe first line of the input file must "
                   "contain: 'PID,PRI,AT,BT' (you can change the order too)\n");
-          return 1;
+          return 0;
         }
 
         label[l++] = '\0';
@@ -74,7 +74,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                   "Error: invalid input received, please check the input "
                   "file to be correct\nThe first line of the input file must "
                   "contain: 'PID,PRI,AT,BT' (you can change the order too)\n");
-          return 1;
+          return 0;
         }
 
         label_count++;
@@ -85,7 +85,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                   "Error: invalid input received, please check the input "
                   "file to be correct\nThe first line of the input file must "
                   "contain: 'PID,PRI,AT,BT' (you can change the order too)\n");
-          return 1;
+          return 0;
         }
 
         label[l++] = c;
@@ -94,7 +94,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                 "Error: invalid input received, please check the input "
                 "file to be correct\nThe first line of the input file must "
                 "contain: 'PID,PRI,AT,BT' (you can change the order too)\n");
-        return 1;
+        return 0;
       }
     }
 
@@ -117,7 +117,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
         if (*procs_len >= MAX_PROC - 1) {
           fprintf(stderr, "Error: you cannot add more than %d processes\n",
                   MAX_PROC);
-          return 1;
+          return 0;
         }
 
         for (int j = 0; j < i; j++) {
@@ -129,7 +129,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                   stderr,
                   "Error: you cannot have more than %d numbers in each line\n",
                   max_num_count);
-              return 1;
+              return 0;
             }
 
             if (num_count == pid_index) {
@@ -146,7 +146,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                       "than %d characters (each number must be at most %d "
                       "digits)\n",
                       max_line_len - 1, (max_line_len - 4) / 4);
-              return 1;
+              return 0;
             }
 
             num_count++;
@@ -159,7 +159,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                       "than %d characters (each number must be at most %d "
                       "digits)\n",
                       max_line_len - 1, (max_line_len - 4) / 4);
-              return 1;
+              return 0;
             }
 
             num *= pow(10, l);
@@ -168,7 +168,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
           } else {
             fprintf(stderr,
                     "Error: each line must contain only numbers and ','\n");
-            return 1;
+            return 0;
           }
         }
 
@@ -176,7 +176,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
           fprintf(stderr, "Error: each line must contain only numbers and ',' "
                           "and also the numbers must be greater than or equal "
                           "to zero and 'BT' cannot be zero\n");
-          return 1;
+          return 0;
         }
 
         proc *np = new_proc(pid, pri, bt, at);
@@ -190,16 +190,16 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                 "Error: each line in the input file cannot be more "
                 "than %d characters (each number must be at most %d digits)\n",
                 max_line_len - 1, (max_line_len - 4) / 4);
-        return 1;
+        return 0;
       }
 
       line[i++] = ch;
     }
 
-    return 0;
+    return 1;
   } else {
     fprintf(stderr, "Error: input file doesn't exist\n");
-    return 1;
+    return 0;
   }
 }
 
@@ -208,7 +208,7 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
   if (get_input("Enter the number of processes: (1 to 1023) ", np,
                 NUM_PROC_INPUT_MAX_DEFAULT) != OK) {
     fprintf(stderr, "Error: invalid input\n");
-    return 1;
+    return 0;
   }
 
   char *endptr;
@@ -217,12 +217,12 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
 
   if (errno != 0 || *endptr != '\0' || endptr == np) {
     fprintf(stderr, "Error: invalid input\n");
-    return 1;
+    return 0;
   }
 
   if (number_of_processes >= MAX_PROC) {
     fprintf(stderr, "Error: invalid input\n");
-    return 1;
+    return 0;
   }
 
   char pri_buf[PROC_INPUT_MAX_DEFAULT];
@@ -242,7 +242,7 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
                 "Do you want the process number %d to be random? (y/N) ",
                 i + 1) < 0) {
       fprintf(stderr, "Error: some error occurred\n");
-      return 1;
+      return 0;
     }
 
     int rand_res = get_input(rand_prmpt, rand_buf, PROC_INPUT_MAX_DEFAULT);
@@ -251,7 +251,7 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
         strcmp(rand_buf, "Y") == 0) {
       if (rand_res != OK) {
         fprintf(stderr, "Error: invalid input\n");
-        return 1;
+        return 0;
       }
 
       proc *np = new_random_proc(i + 1);
@@ -264,27 +264,27 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
                 "for default value 1) ",
                 i + 1) < 0) {
       fprintf(stderr, "Error: some error occurred\n");
-      return 1;
+      return 0;
     }
     if (sprintf(at_prmpt,
                 "Enter the arrival time for process number %d: ", i + 1) < 0) {
       fprintf(stderr, "Error: some error occurred\n");
-      return 1;
+      return 0;
     }
     if (sprintf(bt_prmpt,
                 "Enter the burst time for process number %d: ", i + 1) < 0) {
       fprintf(stderr, "Error: some error occurred\n");
-      return 1;
+      return 0;
     }
 
     if (get_input(at_prmpt, at_buf, PROC_INPUT_MAX_DEFAULT) != OK) {
       fprintf(stderr, "Error: invalid input\n");
-      return 1;
+      return 0;
     }
 
     if (get_input(bt_prmpt, bt_buf, PROC_INPUT_MAX_DEFAULT) != OK) {
       fprintf(stderr, "Error: invalid input\n");
-      return 1;
+      return 0;
     }
 
     endptr = NULL;
@@ -293,12 +293,12 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
 
     if (errno != 0 || *endptr != '\0' || endptr == np) {
       fprintf(stderr, "Error: invalid input\n");
-      return 1;
+      return 0;
     }
 
     if (at < 0) {
       fprintf(stderr, "Error: invalid input\n");
-      return 1;
+      return 0;
     }
 
     endptr = NULL;
@@ -307,12 +307,12 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
 
     if (errno != 0 || *endptr != '\0' || endptr == np) {
       fprintf(stderr, "Error: invalid input\n");
-      return 1;
+      return 0;
     }
 
     if (bt <= 0) {
       fprintf(stderr, "Error: invalid input\n");
-      return 1;
+      return 0;
     }
 
     int pri_res = get_input(pri_prmpt, pri_buf, PROC_INPUT_MAX_DEFAULT);
@@ -322,7 +322,7 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
       pri = 1;
     } else if (pri_res != OK) {
       fprintf(stderr, "Error: invalid input\n");
-      return 1;
+      return 0;
     } else {
       endptr = NULL;
       errno = 0;
@@ -330,12 +330,12 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
 
       if (errno != 0 || *endptr != '\0' || endptr == np) {
         fprintf(stderr, "Error: invalid input\n");
-        return 1;
+        return 0;
       }
 
       if (pri <= 0) {
         fprintf(stderr, "Error: invalid input\n");
-        return 1;
+        return 0;
       }
     }
 
@@ -343,7 +343,7 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
     (*procs)[(*procs_len)++] = np;
   }
 
-  return 0;
+  return 1;
 }
 
 int get_input(const char *prmpt, char *buff, size_t size) {
