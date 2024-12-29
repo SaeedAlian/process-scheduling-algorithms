@@ -25,6 +25,39 @@ proc *new_random_proc(int pid) {
   return n;
 }
 
+int add_proc_wt(proc *p, int wt) {
+  if (wt < 0)
+    return 0;
+
+  if (p == NULL)
+    return 0;
+
+  p->wt = wt;
+  return 1;
+}
+
+int add_proc_tt(proc *p, int tt) {
+  if (tt < 0)
+    return 0;
+
+  if (p == NULL)
+    return 0;
+
+  p->tt = tt;
+  return 1;
+}
+
+int add_proc_rt(proc *p, int rt) {
+  if (rt < 0)
+    return 0;
+
+  if (p == NULL)
+    return 0;
+
+  p->rt = rt;
+  return 1;
+}
+
 void print_proc(proc *p) {
   if (p == NULL)
     return;
