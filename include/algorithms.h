@@ -20,7 +20,7 @@ int set_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
 
 int set_proc_table(char **info, int *len, int *max, proc *procs, int procs_len);
 
-int realloc_algo_gant_chart(char **stats, int *max);
+int realloc_str(char **stats, int *max);
 int append_char_to_str(char c, char **str, int *len, int *max);
 int append_str_to_str(char *s, char **str, int *len, int *max);
 int append_num_to_str(int i, char **str, int *len, int *max);

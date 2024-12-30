@@ -774,7 +774,7 @@ int append_str_to_str(char *s, char **str, int *len, int *max) {
 
 int append_char_to_str(char c, char **str, int *len, int *max) {
   if ((*len) >= (*max) - 1) {
-    if (!realloc_algo_gant_chart(str, max)) {
+    if (!realloc_str(str, max)) {
       return 0;
     }
   }
@@ -783,7 +783,7 @@ int append_char_to_str(char c, char **str, int *len, int *max) {
   return 1;
 }
 
-int realloc_algo_gant_chart(char **stats, int *max) {
+int realloc_str(char **stats, int *max) {
   *max *= 2;
   char *temp = (char *)realloc(*stats, sizeof(char) * (*max));
   if (temp == NULL)
