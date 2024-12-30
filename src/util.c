@@ -19,6 +19,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
       if (ch == ' ')
         continue;
       if (ch == EOF) {
+        fclose(fptr);
         fprintf(stderr,
                 "Error: invalid input received, please check the input "
                 "file to be correct\nThe first line of the input file must "
@@ -32,6 +33,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
     header[i++] = '\0';
 
     if (i != header_len || ch != '\n') {
+      fclose(fptr);
       fprintf(stderr,
               "Error: invalid input received, please check the input "
               "file to be correct\nThe first line of the input file must "
@@ -52,6 +54,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
 
       if (c == ',' || c == '\0') {
         if (label_count >= max_label_count) {
+          fclose(fptr);
           fprintf(stderr,
                   "Error: invalid input received, please check the input "
                   "file to be correct\nThe first line of the input file must "
@@ -70,6 +73,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
         } else if (strcmp(label, "PRI") == 0) {
           pri_index = label_count;
         } else {
+          fclose(fptr);
           fprintf(stderr,
                   "Error: invalid input received, please check the input "
                   "file to be correct\nThe first line of the input file must "
@@ -81,6 +85,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
         l = 0;
       } else if (c <= 'Z' && c >= 'A') {
         if (l >= max_label_len - 1) {
+          fclose(fptr);
           fprintf(stderr,
                   "Error: invalid input received, please check the input "
                   "file to be correct\nThe first line of the input file must "
@@ -90,6 +95,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
 
         label[l++] = c;
       } else {
+        fclose(fptr);
         fprintf(stderr,
                 "Error: invalid input received, please check the input "
                 "file to be correct\nThe first line of the input file must "
@@ -115,6 +121,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
         l = 0;
 
         if (*procs_len >= MAX_PROC - 1) {
+          fclose(fptr);
           fprintf(stderr, "Error: you cannot add more than %d processes\n",
                   MAX_PROC);
           return 0;
@@ -125,6 +132,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
 
           if (c == ',' || c == '\0') {
             if (num_count >= max_num_count) {
+              fclose(fptr);
               fprintf(
                   stderr,
                   "Error: you cannot have more than %d numbers in each line\n",
@@ -141,6 +149,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
             } else if (num_count == bt_index) {
               bt = num;
             } else {
+              fclose(fptr);
               fprintf(stderr,
                       "Error: each line in the input file cannot be more "
                       "than %d characters (each number must be at most %d "
@@ -154,6 +163,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
             l = 0;
           } else if (c <= '9' && c >= '0') {
             if (l >= (max_line_len - 4) / 4) {
+              fclose(fptr);
               fprintf(stderr,
                       "Error: each line in the input file cannot be more "
                       "than %d characters (each number must be at most %d "
@@ -166,6 +176,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
             num += c - '0';
             l++;
           } else {
+            fclose(fptr);
             fprintf(stderr,
                     "Error: each line must contain only numbers and ','\n");
             return 0;
@@ -173,6 +184,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
         }
 
         if (pid < 0 || pri < 0 || bt <= 0 || at < 0) {
+          fclose(fptr);
           fprintf(stderr, "Error: each line must contain only numbers and ',' "
                           "and also the numbers must be greater than or equal "
                           "to zero and 'BT' cannot be zero\n");
@@ -186,6 +198,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
       }
 
       if (i >= max_line_len - 1) {
+        fclose(fptr);
         fprintf(stderr,
                 "Error: each line in the input file cannot be more "
                 "than %d characters (each number must be at most %d digits)\n",
@@ -196,6 +209,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
       line[i++] = ch;
     }
 
+    fclose(fptr);
     return 1;
   } else {
     fprintf(stderr, "Error: input file doesn't exist\n");
