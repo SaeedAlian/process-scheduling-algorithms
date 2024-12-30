@@ -15,6 +15,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
       {0, 0, 0, 0}};
 
   char algorithms_str[MAX_ALGORITHMS];
+  args->input_file = NULL;
   args->ctx_time = 0;
   args->fill_random = 0;
   args->algorithms_len = 0;
@@ -34,6 +35,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
               tm.tm_sec) >= 0) {
     args->output_file = buf;
   } else {
+    free(buf);
     fprintf(stderr,
             "Error: there was an error in determining the output filename\n");
     return 0;
@@ -44,6 +46,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
     switch (opt) {
     case 'a':
       if (strlen(optarg) >= MAX_ALGORITHMS) {
+        free(buf);
         fprintf(stderr,
                 "Error: algorithms string is too long (max %d characters)\n",
                 MAX_ALGORITHMS - 1);
@@ -58,6 +61,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
       errno = 0;
       float ctx = strtof(optarg, &endptr);
       if (errno != 0 || *endptr != '\0' || endptr == optarg) {
+        free(buf);
         fprintf(stderr, "Error: invalid context time format.\n");
         return 0;
       }
@@ -84,11 +88,13 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
       printf("  -o, --output <output>        Output file name\n");
       printf("  -r, --random                 Set all process stats randomly\n");
       printf("  -h, --help                   Show this help message\n");
+      free(buf);
       exit(0);
       break;
     default:
       fprintf(stderr, "Usage: %s [OPTIONS]\n", argv[0]);
       fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+      free(buf);
       return 0;
     }
   }
@@ -96,6 +102,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
   int length;
   int *tokenized_algorithms = tokenize_algorithms(algorithms_str, &length);
   if (tokenized_algorithms == NULL) {
+    free(buf);
     return 0;
   }
 
@@ -103,10 +110,22 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
   args->algorithms_len = length;
 
   if (!validate_ctx_time(args->ctx_time)) {
+    free(buf);
+    free(tokenized_algorithms);
+    return 0;
+  }
+
+  if (args->fill_random && args->input_file != NULL) {
+    free(buf);
+    free(tokenized_algorithms);
+    fprintf(stderr, "Error: you cannot pass a input file and the random option "
+                    "at the same time\n");
     return 0;
   }
 
   if (args->output_file == NULL || strlen(args->output_file) == 0) {
+    free(buf);
+    free(tokenized_algorithms);
     fprintf(stderr, "Error: output file argument is required\n");
     return 0;
   }
