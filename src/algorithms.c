@@ -705,7 +705,7 @@ int set_gant_time_section(char **time_section, int *time_len, int *time_max,
     return 0;
   }
 
-  for (int i = add_char_res; i < (ctx_time * 3) + 1; i++) {
+  for (int i = add_char_res; i < (ctx_time * line_count) + 1; i++) {
     add_char_res = append_char_to_str(' ', time_section, time_len, time_max);
 
     if (add_char_res == 0) {
