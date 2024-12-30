@@ -21,6 +21,7 @@ int get_input(const char *prmpt, char *buff, size_t size);
 
 int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
                                int *procs_len);
-int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len);
+int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len,
+                          int fill_random);
 
 #endif
