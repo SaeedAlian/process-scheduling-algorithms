@@ -118,7 +118,7 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       free(gant_chart_lines);
       free(gant_chart_procs);
       free(gant_chart_time);
-      fprintf(stderr, "Error: something went wrong in adding stats into"
+      fprintf(stderr, "Error: something went wrong in adding stats into "
                       "processes\n");
       return 0;
     }
