@@ -10,6 +10,12 @@ proc *new_proc(int pid, int pri, int bt, int at) {
   n->at = at;
   n->bt = bt;
 
+  n->wt = -1;
+  n->rt = -1;
+  n->tt = -1;
+
+  n->sbt = 0;
+
   return n;
 }
 
@@ -55,6 +61,18 @@ int add_proc_rt(proc *p, int rt) {
     return 0;
 
   p->rt = rt;
+  return 1;
+}
+
+int increment_sbt(proc *p, int s) {
+  if (p == NULL)
+    return 0;
+
+  int n = p->sbt + s;
+  if (n > p->bt)
+    n = p->bt;
+
+  p->sbt = n;
   return 1;
 }
 

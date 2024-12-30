@@ -16,6 +16,7 @@ typedef struct proc {
   int wt;
   int tt;
   int rt;
+  int sbt;
 } proc;
 
 proc *new_proc(int pid, int pri, int bt, int at);
@@ -24,6 +25,8 @@ proc *new_random_proc(int pid);
 int add_proc_wt(proc *p, int wt);
 int add_proc_tt(proc *p, int tt);
 int add_proc_rt(proc *p, int rt);
+
+int increment_sbt(proc *p, int s);
 
 void print_proc(proc *p);
 
