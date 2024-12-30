@@ -433,7 +433,7 @@ int set_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
     return 0;
   }
 
-  for (int i = 0; i < 200; i++) {
+  for (int i = 0; i < 300; i++) {
     if (!append_char_to_str('-', algo_info, algo_info_len, algo_info_max)) {
       return 0;
     }
