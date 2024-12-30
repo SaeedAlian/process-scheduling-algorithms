@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GANT_LINE_COUNT 3
+#define GANT_LINE_COUNT 5
 #define ALGO_INFO_SECTION_SIZE 2048
 #define MAX_ALGO_INFO_FILESIZE 2048 * 6
 
