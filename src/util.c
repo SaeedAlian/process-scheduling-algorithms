@@ -217,7 +217,8 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
   }
 }
 
-int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
+int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len,
+                          int fill_random) {
   char np[NUM_PROC_INPUT_MAX_DEFAULT];
   if (get_input("Enter the number of processes: (1 to 1023) ", np,
                 NUM_PROC_INPUT_MAX_DEFAULT) != OK) {
@@ -246,6 +247,12 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
   char rand_buf[PROC_INPUT_MAX_DEFAULT];
 
   for (int i = 0; i < number_of_processes; i++) {
+    if (fill_random) {
+      proc *np = new_random_proc(i + 1);
+      (*procs)[(*procs_len)++] = np;
+      continue;
+    }
+
     char pri_prmpt[PROMPT_MAX_DEFAULT];
     char at_prmpt[PROMPT_MAX_DEFAULT];
     char bt_prmpt[PROMPT_MAX_DEFAULT];
@@ -260,9 +267,8 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len) {
     }
 
     int rand_res = get_input(rand_prmpt, rand_buf, PROC_INPUT_MAX_DEFAULT);
-    if (rand_res != NO_INPUT && rand_res != EMPTY_INPUT &&
-            strcmp(rand_buf, "y") == 0 ||
-        strcmp(rand_buf, "Y") == 0) {
+    if ((rand_res != NO_INPUT && rand_res != EMPTY_INPUT) &&
+        (strcmp(rand_buf, "y") == 0 || strcmp(rand_buf, "Y") == 0)) {
       if (rand_res != OK) {
         fprintf(stderr, "Error: invalid input\n");
         return 0;
