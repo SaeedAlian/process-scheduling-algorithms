@@ -99,8 +99,13 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       wt = 0;
       time = top.at;
     } else {
-      proc prev = clone_procs[i - 1];
-      wt = prev.wt + prev.bt + prev.at - top.at + ctx_time;
+      if (time <= top.at) {
+        wt = 0;
+        time = top.at;
+      } else {
+        proc prev = clone_procs[i - 1];
+        wt = prev.wt + prev.bt + prev.at - top.at + ctx_time;
+      }
     }
 
     int rt = wt;
