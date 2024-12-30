@@ -17,6 +17,9 @@
 #define TOO_LONG -2
 #define OK 1
 
+void create_file(char *filename);
+int append_str_to_file(char *f, char *s, int clear_file);
+
 int get_input(const char *prmpt, char *buff, size_t size);
 
 int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],

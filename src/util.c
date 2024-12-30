@@ -366,6 +366,26 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len,
   return 1;
 }
 
+void create_file(char *filename) {
+  FILE *fptr;
+  fptr = fopen(filename, "w");
+  fclose(fptr);
+}
+
+int append_str_to_file(char *f, char *s, int clear_file) {
+  if (clear_file)
+    create_file(f);
+
+  FILE *fptr = fopen(f, "ab");
+  if (fptr != NULL) {
+    fputs(s, fptr);
+    fclose(fptr);
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 int get_input(const char *prmpt, char *buff, size_t size) {
   if (prmpt != NULL) {
     printf("%s", prmpt);
