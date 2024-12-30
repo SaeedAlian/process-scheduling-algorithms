@@ -25,7 +25,7 @@ typedef struct {
   int *algorithms;
   int algorithms_len;
   float ctx_time;
-  char *output_file;
+  char *output_dir;
   char *input_file;
   int fill_random;
 } arguments;

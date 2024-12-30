@@ -7,8 +7,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
+#define DEFAULT_OUTPUT_DIR "outputs"
 #define PROMPT_MAX_DEFAULT 256
 #define PROC_INPUT_MAX_DEFAULT 8
 #define NUM_PROC_INPUT_MAX_DEFAULT 4
@@ -17,8 +20,9 @@
 #define TOO_LONG -2
 #define OK 1
 
-void create_file(char *filename);
-int append_str_to_file(char *f, char *s, int clear_file);
+int ensure_directory_exists(char *dir_path);
+FILE *create_file(char *filename);
+int append_str_to_file(FILE *f, char *s);
 
 int get_input(const char *prmpt, char *buff, size_t size);
 

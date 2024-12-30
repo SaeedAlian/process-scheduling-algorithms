@@ -26,18 +26,18 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
   char *buf = (char *)malloc(sizeof(char) * 50);
   if (buf == NULL) {
     fprintf(stderr,
-            "Error: there was an error in determining the output filename\n");
+            "Error: there was an error in determining the output dirname\n");
     return 0;
   }
 
-  if (sprintf(buf, "%d-%02d-%02d-%02d:%02d:%02d.txt", tm.tm_year + 1900,
+  if (sprintf(buf, "%d-%02d-%02d-%02d:%02d:%02d", tm.tm_year + 1900,
               tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
               tm.tm_sec) >= 0) {
-    args->output_file = buf;
+    args->output_dir = buf;
   } else {
     free(buf);
     fprintf(stderr,
-            "Error: there was an error in determining the output filename\n");
+            "Error: there was an error in determining the output dir\n");
     return 0;
   }
 
@@ -69,8 +69,8 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
       break;
     }
     case 'o':
-      free(args->output_file);
-      args->output_file = optarg;
+      free(args->output_dir);
+      args->output_dir = optarg;
       break;
     case 'i':
       args->input_file = optarg;
@@ -123,10 +123,10 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
     return 0;
   }
 
-  if (args->output_file == NULL || strlen(args->output_file) == 0) {
+  if (args->output_dir == NULL || strlen(args->output_dir) == 0) {
     free(buf);
     free(tokenized_algorithms);
-    fprintf(stderr, "Error: output file argument is required\n");
+    fprintf(stderr, "Error: output argument is required\n");
     return 0;
   }
 

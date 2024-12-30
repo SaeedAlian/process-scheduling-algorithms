@@ -1,5 +1,46 @@
 #include "../include/algorithms.h"
 
+int run_algo(const char *algo_name, char *dirname, algo_func func,
+             proc *procs[MAX_PROC], int procs_len, int ctx_time) {
+  int info_max = MAX_ALGO_INFO_FILESIZE;
+  char *info = (char *)malloc(sizeof(char) * info_max);
+  int info_len = 0;
+
+  if (!func(procs, procs_len, ctx_time, &info, &info_len, &info_max)) {
+    free(info);
+    fprintf(stderr, "Error: something went wrong in running %s algorithm\n",
+            algo_name);
+    return 0;
+  }
+
+  char filename[1024];
+  if (sprintf(filename, "%s/%s.txt", dirname, algo_name) < 0) {
+    free(info);
+    fprintf(stderr,
+            "Error: something went wrong in creating the output file\n");
+    return 1;
+  }
+
+  FILE *file = create_file(filename);
+  if (file == NULL) {
+    free(info);
+    fprintf(stderr,
+            "Error: something went wrong in creating the output file\n");
+    return 1;
+  }
+
+  if (!append_str_to_file(file, info)) {
+    free(info);
+    fprintf(stderr,
+            "Error: something went wrong in creating the output file\n");
+    return 1;
+  }
+
+  fclose(file);
+
+  return 1;
+}
+
 int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
          int *output_info_len, int *output_info_max) {
   if (output_info == NULL || output_info_len == NULL ||

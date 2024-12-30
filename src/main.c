@@ -26,170 +26,97 @@ int main(int argc, char **argv) {
     }
   }
 
+  if (!ensure_directory_exists((char *)DEFAULT_OUTPUT_DIR)) {
+    fprintf(stderr,
+            "Error: something went wrong in creating the output directory\n");
+    return 1;
+  }
+
+  char dirname[1024];
+  if (sprintf(dirname, "./%s/%s", DEFAULT_OUTPUT_DIR, args.output_dir) < 0) {
+    fprintf(stderr,
+            "Error: something went wrong in creating the output directory\n");
+    return 1;
+  }
+
+  if (!ensure_directory_exists(dirname)) {
+    fprintf(stderr,
+            "Error: something went wrong in creating the output directory\n");
+    return 1;
+  }
+
   for (int i = 0; i < args.algorithms_len; i++) {
     int alg = args.algorithms[i];
 
-    int output_info_max = MAX_ALGO_INFO_FILESIZE;
-    char *output_info = (char *)malloc(sizeof(char) * output_info_max);
-    int output_info_len = 0;
-
     switch (alg) {
     case FCFS: {
-      if (!fcfs(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-                &output_info_max)) {
-        free(output_info);
+      if (!run_algo("fcfs", dirname, fcfs, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
 
     case PS: {
-      if (!ps(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-              &output_info_max)) {
-        free(output_info);
+      if (!run_algo("ps", dirname, ps, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
 
     case SRJF: {
-      if (!srjf(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-                &output_info_max)) {
-        free(output_info);
+      if (!run_algo("srjf", dirname, srjf, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
 
     case LRJF: {
-      if (!lrjf(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-                &output_info_max)) {
-        free(output_info);
+      if (!run_algo("lrjf", dirname, lrjf, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
 
     case RR: {
-      if (!rr(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-              &output_info_max)) {
-        free(output_info);
+      if (!run_algo("rr", dirname, rr, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
 
     case SJF: {
-      if (!sjf(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-               &output_info_max)) {
-        free(output_info);
+      if (!run_algo("sjf", dirname, sjf, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
 
     case LJF: {
-      if (!ljf(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-               &output_info_max)) {
-        free(output_info);
+      if (!run_algo("ljf", dirname, ljf, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
 
     case HRRN: {
-      if (!hrrn(procs, procs_len, args.ctx_time, &output_info, &output_info_len,
-                &output_info_max)) {
-        free(output_info);
+      if (!run_algo("hrrn", dirname, hrrn, procs, procs_len, args.ctx_time)) {
         return 1;
       }
-
-      if (!append_str_to_file(args.output_file, output_info, i == 0)) {
-        free(output_info);
-        fprintf(stderr,
-                "Error: something went wrong in creating the output file\n");
-        return 1;
-      }
-
-      output_info_len = 0;
 
       break;
     }
     }
   }
 
-  printf("All algorithm results have been added in %s file\n",
-         args.output_file);
+  printf("All algorithm results have been added in %s/%s\n", DEFAULT_OUTPUT_DIR,
+         args.output_dir);
 
   return 0;
 }

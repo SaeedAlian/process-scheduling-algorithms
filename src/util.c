@@ -366,20 +366,34 @@ int read_procs_from_stdin(proc *(*procs)[1024], int *procs_len,
   return 1;
 }
 
-void create_file(char *filename) {
-  FILE *fptr;
-  fptr = fopen(filename, "w");
-  fclose(fptr);
+int ensure_directory_exists(char *dir_path) {
+  struct stat st;
+
+  if (stat(dir_path, &st) == 0) {
+    if (S_ISDIR(st.st_mode)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+  if (mkdir(dir_path, 0755) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
-int append_str_to_file(char *f, char *s, int clear_file) {
-  if (clear_file)
-    create_file(f);
+FILE *create_file(char *filename) {
+  FILE *fptr;
+  fptr = fopen(filename, "w");
+  return fptr;
+}
 
-  FILE *fptr = fopen(f, "ab");
-  if (fptr != NULL) {
-    fputs(s, fptr);
-    fclose(fptr);
+int append_str_to_file(FILE *f, char *s) {
+  if (f != NULL) {
+    if (fputs(s, f) == EOF)
+      return 0;
     return 1;
   } else {
     return 0;

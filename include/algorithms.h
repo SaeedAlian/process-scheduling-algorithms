@@ -12,6 +12,10 @@
 #define ALGO_INFO_SECTION_SIZE 2048
 #define MAX_ALGO_INFO_FILESIZE 2048 * 6
 
+typedef int (*algo_func)(proc *procs[MAX_PROC], int procs_len, int ctx_time,
+                         char **output_info, int *output_info_len,
+                         int *output_info_max);
+
 int set_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
                   char *algo_name, char *gant_chart_procs,
                   char *gant_chart_lines, char *gant_chart_time,
@@ -56,5 +60,8 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
        int *output_info_len, int *output_info_max);
 int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
          int *output_info_len, int *output_info_max);
+
+int run_algo(const char *algo_name, char *dirname, algo_func func,
+             proc *procs[MAX_PROC], int procs_len, int ctx_time);
 
 #endif
