@@ -193,22 +193,6 @@ int *tokenize_algorithms(char *algorithms, int *length) {
   return tokenized;
 }
 
-int validate_algorithms(char *algorithms, int **tokenized, int *length) {
-  if (algorithms == NULL || strlen(algorithms) == 0) {
-    fprintf(stderr, "Error: no algorithms provided\n");
-    return 0;
-  }
-
-  int *t = tokenize_algorithms(algorithms, length);
-  if (t == NULL) {
-    fprintf(stderr, "Error: algorithm validation error\n");
-    return 0;
-  }
-
-  *tokenized = t;
-  return 1;
-}
-
 int validate_ctx_time(float ctx_time) {
   if (ctx_time < 0.0 || ctx_time > 5.0) {
     fprintf(stderr, "Error: context switch time must be between 0 and 5\n");

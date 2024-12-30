@@ -31,7 +31,6 @@ typedef struct {
 } arguments;
 
 int *tokenize_algorithms(char *algorithms, int *length);
-int validate_algorithms(char *algorithms, int **tokenized, int *length);
 int validate_ctx_time(float ctx_time);
 
 int parse_arguments(int argc, char *argv[], arguments *args);
