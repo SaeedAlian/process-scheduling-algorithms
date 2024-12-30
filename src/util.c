@@ -172,7 +172,7 @@ int read_procs_from_input_file(char *input_file, proc *(*procs)[1024],
               return 0;
             }
 
-            num *= pow(10, l);
+            num *= 10;
             num += c - '0';
             l++;
           } else {
