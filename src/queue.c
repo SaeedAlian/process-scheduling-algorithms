@@ -79,7 +79,6 @@ atqueue *clone_atqueue(atqueue *q) {
 
   clone->front = q->front;
   clone->rear = q->rear;
-  clone->order = q->order;
 
   if (atqueue_is_empty(q)) {
     return clone;
@@ -105,7 +104,6 @@ btqueue *clone_btqueue(btqueue *q) {
 
   clone->front = q->front;
   clone->rear = q->rear;
-  clone->order = q->order;
 
   if (btqueue_is_empty(q)) {
     return clone;
@@ -131,7 +129,6 @@ pqueue *clone_pqueue(pqueue *q) {
 
   clone->front = q->front;
   clone->rear = q->rear;
-  clone->order = q->order;
 
   if (pqueue_is_empty(q)) {
     return clone;
@@ -388,6 +385,9 @@ int peek_queue(queue *q, proc *out) {
 }
 
 void heapify_down_atqueue(atqueue *q, int index) {
+  if (index < 0)
+    return;
+
   int largest = index;
   int left = index * 2 + 1;
   int right = index * 2 + 2;
@@ -425,6 +425,9 @@ void heapify_down_atqueue(atqueue *q, int index) {
 }
 
 void heapify_down_btqueue(btqueue *q, int index) {
+  if (index < 0)
+    return;
+
   int largest = index;
   int left = index * 2 + 1;
   int right = index * 2 + 2;
@@ -499,7 +502,14 @@ void heapify_down_pqueue(pqueue *q, int index) {
 }
 
 void heapify_up_atqueue(atqueue *q, int index) {
+  if (index < 0)
+    return;
+
   int parent = (index - 1) / 2;
+
+  if (parent < 0 || index == parent)
+    return;
+
   int swap = 0;
 
   if (q->order == ASC) {
@@ -524,7 +534,14 @@ void heapify_up_atqueue(atqueue *q, int index) {
 }
 
 void heapify_up_btqueue(btqueue *q, int index) {
+  if (index < 0)
+    return;
+
   int parent = (index - 1) / 2;
+
+  if (parent < 0 || parent == index)
+    return;
+
   int swap = 0;
 
   if (q->order == ASC) {
@@ -549,7 +566,14 @@ void heapify_up_btqueue(btqueue *q, int index) {
 }
 
 void heapify_up_pqueue(pqueue *q, int index) {
+  if (index < 0)
+    return;
+
   int parent = (index - 1) / 2;
+
+  if (parent < 0 || parent == index)
+    return;
+
   int swap = 0;
 
   if (q->order == ASC) {
