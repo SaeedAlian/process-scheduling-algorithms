@@ -26,20 +26,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (!ensure_directory_exists((char *)DEFAULT_OUTPUT_DIR)) {
-    fprintf(stderr,
-            "Error: something went wrong in creating the output directory\n");
-    return 1;
-  }
-
-  char dirname[1024];
-  if (sprintf(dirname, "./%s/%s", DEFAULT_OUTPUT_DIR, args.output_dir) < 0) {
-    fprintf(stderr,
-            "Error: something went wrong in creating the output directory\n");
-    return 1;
-  }
-
-  if (!ensure_directory_exists(dirname)) {
+  if (!ensure_directory_exists(args.output_dir)) {
     fprintf(stderr,
             "Error: something went wrong in creating the output directory\n");
     return 1;
@@ -50,7 +37,8 @@ int main(int argc, char **argv) {
 
     switch (alg) {
     case FCFS: {
-      if (!run_algo("fcfs", dirname, fcfs, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("fcfs", args.output_dir, fcfs, procs, procs_len,
+                    args.ctx_time)) {
         return 1;
       }
 
@@ -58,7 +46,8 @@ int main(int argc, char **argv) {
     }
 
     case PS: {
-      if (!run_algo("ps", dirname, ps, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("ps", args.output_dir, ps, procs, procs_len, args.ctx_time,
+                    args.quant)) {
         return 1;
       }
 
@@ -66,7 +55,8 @@ int main(int argc, char **argv) {
     }
 
     case SRJF: {
-      if (!run_algo("srjf", dirname, srjf, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("srjf", args.output_dir, srjf, procs, procs_len,
+                    args.ctx_time, args.quant)) {
         return 1;
       }
 
@@ -74,7 +64,8 @@ int main(int argc, char **argv) {
     }
 
     case LRJF: {
-      if (!run_algo("lrjf", dirname, lrjf, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("lrjf", args.output_dir, lrjf, procs, procs_len,
+                    args.ctx_time, args.quant)) {
         return 1;
       }
 
@@ -82,7 +73,8 @@ int main(int argc, char **argv) {
     }
 
     case RR: {
-      if (!run_algo("rr", dirname, rr, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("rr", args.output_dir, rr, procs, procs_len, args.ctx_time,
+                    args.quant)) {
         return 1;
       }
 
@@ -90,7 +82,8 @@ int main(int argc, char **argv) {
     }
 
     case SJF: {
-      if (!run_algo("sjf", dirname, sjf, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("sjf", args.output_dir, sjf, procs, procs_len,
+                    args.ctx_time)) {
         return 1;
       }
 
@@ -98,7 +91,8 @@ int main(int argc, char **argv) {
     }
 
     case LJF: {
-      if (!run_algo("ljf", dirname, ljf, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("ljf", args.output_dir, ljf, procs, procs_len,
+                    args.ctx_time)) {
         return 1;
       }
 
@@ -106,7 +100,8 @@ int main(int argc, char **argv) {
     }
 
     case HRRN: {
-      if (!run_algo("hrrn", dirname, hrrn, procs, procs_len, args.ctx_time)) {
+      if (!run_alog("hrrn", args.output_dir, hrrn, procs, procs_len,
+                    args.ctx_time)) {
         return 1;
       }
 
@@ -115,8 +110,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  printf("All algorithm results have been added in %s/%s\n", DEFAULT_OUTPUT_DIR,
-         args.output_dir);
+  printf("All algorithm results have been added in %s\n", args.output_dir);
 
   return 0;
 }

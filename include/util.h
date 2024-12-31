@@ -11,7 +11,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define DEFAULT_OUTPUT_DIR "outputs"
 #define PROMPT_MAX_DEFAULT 256
 #define PROC_INPUT_MAX_DEFAULT 8
 #define NUM_PROC_INPUT_MAX_DEFAULT 4
