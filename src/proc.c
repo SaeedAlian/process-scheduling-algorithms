@@ -80,7 +80,7 @@ void print_proc(proc *p) {
   if (p == NULL)
     return;
 
-  printf(
-      "Process -> ID = %d, PRIORITY = %d, BURST TIME = %d, ARRIVAL TIME = %d\n",
-      p->pid, p->pri, p->bt, p->at);
+  printf("Process -> ID = %d, PRIORITY = %d, BURST TIME = %d, ARRIVAL TIME = "
+         "%d, SPENT TIME = %d\n",
+         p->pid, p->pri, p->bt, p->at, p->sbt);
 }
