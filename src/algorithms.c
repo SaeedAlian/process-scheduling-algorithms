@@ -2783,6 +2783,12 @@ int draw_proc_table(char **table, int *len, int *max, proc *procs,
     add_char_res += append_str_to_str((char *)" ", table, len, max);
   }
 
+  add_char_res += append_str_to_str((char *)"PRI", table, len, max);
+
+  for (int i = 3; i < margin; i++) {
+    add_char_res += append_str_to_str((char *)" ", table, len, max);
+  }
+
   add_char_res += append_str_to_str((char *)"AT", table, len, max);
 
   for (int i = 2; i < margin; i++) {
@@ -2812,7 +2818,7 @@ int draw_proc_table(char **table, int *len, int *max, proc *procs,
   add_char_res += append_str_to_str((char *)"\n", table, len, max);
   add_char_res += append_str_to_str((char *)"   ", table, len, max);
 
-  if (add_char_res != 20 + (margin - 2) * 4 + margin - 3) {
+  if (add_char_res != 23 + (margin - 2) * 4 + (margin - 3) * 2) {
     return 0;
   }
   add_char_res = 0;
@@ -2826,6 +2832,21 @@ int draw_proc_table(char **table, int *len, int *max, proc *procs,
     proc p = procs[i];
 
     if (sprintf(formatted_str, "%d", p.pid) < 0) {
+      return 0;
+    }
+
+    add_char_res = append_str_to_str(formatted_str, table, len, max);
+    if (add_char_res == 0) {
+      return 0;
+    }
+
+    formatted_str_len = strlen(formatted_str);
+    expected_second_add_char_res += margin - formatted_str_len;
+    for (int i = formatted_str_len; i < margin; i++) {
+      second_add_char_res += append_str_to_str((char *)" ", table, len, max);
+    }
+
+    if (sprintf(formatted_str, "%d", p.pri) < 0) {
       return 0;
     }
 
