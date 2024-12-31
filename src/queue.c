@@ -456,27 +456,33 @@ void heapify_down_btqueue(btqueue *q, int index) {
   int left = index * 2 + 1;
   int right = index * 2 + 2;
 
+  int largest_bt_remaining = q->items[largest].bt - q->items[largest].sbt;
+  int left_bt_remaining = q->items[left].bt - q->items[left].sbt;
+  int right_bt_remaining = q->items[right].bt - q->items[right].sbt;
+
   if (q->order == ASC) {
-    if (left <= q->rear && (q->items[left].bt > q->items[largest].bt ||
-                            (q->items[left].bt == q->items[largest].bt &&
+    if (left <= q->rear && (left_bt_remaining > largest_bt_remaining ||
+                            (left_bt_remaining == largest_bt_remaining &&
                              q->items[left].pri < q->items[largest].pri))) {
       largest = left;
+      largest_bt_remaining = q->items[largest].bt - q->items[largest].sbt;
     }
 
-    if (right <= q->rear && (q->items[right].bt > q->items[largest].bt ||
-                             (q->items[right].bt == q->items[largest].bt &&
+    if (right <= q->rear && (right_bt_remaining > largest_bt_remaining ||
+                             (right_bt_remaining == largest_bt_remaining &&
                               q->items[right].pri < q->items[largest].pri))) {
       largest = right;
     }
   } else {
-    if (left <= q->rear && (q->items[left].bt < q->items[largest].bt ||
-                            (q->items[left].bt == q->items[largest].bt &&
+    if (left <= q->rear && (left_bt_remaining < largest_bt_remaining ||
+                            (left_bt_remaining == largest_bt_remaining &&
                              q->items[left].pri > q->items[largest].pri))) {
       largest = left;
+      largest_bt_remaining = q->items[largest].bt - q->items[largest].sbt;
     }
 
-    if (right <= q->rear && (q->items[right].bt < q->items[largest].bt ||
-                             (q->items[right].bt == q->items[largest].bt &&
+    if (right <= q->rear && (right_bt_remaining < largest_bt_remaining ||
+                             (right_bt_remaining == largest_bt_remaining &&
                               q->items[right].pri > q->items[largest].pri))) {
       largest = right;
     }
@@ -568,15 +574,18 @@ void heapify_up_btqueue(btqueue *q, int index) {
 
   int swap = 0;
 
+  int index_bt_remaining = q->items[index].bt - q->items[index].sbt;
+  int parent_bt_remaining = q->items[parent].bt - q->items[parent].sbt;
+
   if (q->order == ASC) {
-    if ((q->items[index].bt > q->items[parent].bt ||
-         (q->items[index].bt == q->items[parent].bt &&
+    if ((index_bt_remaining > parent_bt_remaining ||
+         (index_bt_remaining == parent_bt_remaining &&
           q->items[index].pri < q->items[parent].pri))) {
       swap = 1;
     }
   } else {
-    if ((q->items[index].bt < q->items[parent].bt ||
-         (q->items[index].bt == q->items[parent].bt &&
+    if ((index_bt_remaining < parent_bt_remaining ||
+         (index_bt_remaining == parent_bt_remaining &&
           q->items[index].pri > q->items[parent].pri))) {
       swap = 1;
     }
