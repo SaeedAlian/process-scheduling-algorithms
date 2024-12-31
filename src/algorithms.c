@@ -528,6 +528,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!increment_sbt(&top, top.bt) || !add_proc_wt(&top, wt) ||
         !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
+      free_atqueue(atq);
       free_btqueue(btq);
       free(proc_table);
       free(gant_chart_lines);
@@ -544,6 +545,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                    &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
                    top.pid, time, top.bt, GANT_LINE_COUNT)) {
       free_atqueue(atq);
+      free_btqueue(btq);
       free(proc_table);
       free(gant_chart_lines);
       free(gant_chart_procs);
@@ -560,6 +562,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
               time + top.bt, ctx_time, GANT_LINE_COUNT)) {
         free_atqueue(atq);
+        free_btqueue(btq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -581,6 +584,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
                        clone_procs, procs_len)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -592,6 +596,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
                           &gant_chart_lines_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -604,6 +609,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
                          &gant_chart_time_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -622,6 +628,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                       (char *)"SJF", gant_chart_procs, gant_chart_lines,
                       gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
                       ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -632,6 +639,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
   free(gant_chart_lines);
@@ -851,6 +859,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!increment_sbt(&top, top.bt) || !add_proc_wt(&top, wt) ||
         !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
+      free_atqueue(atq);
       free_btqueue(btq);
       free(proc_table);
       free(gant_chart_lines);
@@ -867,6 +876,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                    &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
                    top.pid, time, top.bt, GANT_LINE_COUNT)) {
       free_atqueue(atq);
+      free_btqueue(btq);
       free(proc_table);
       free(gant_chart_lines);
       free(gant_chart_procs);
@@ -883,6 +893,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
               time + top.bt, ctx_time, GANT_LINE_COUNT)) {
         free_atqueue(atq);
+        free_btqueue(btq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -904,6 +915,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
                        clone_procs, procs_len)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -915,6 +927,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
                           &gant_chart_lines_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -927,6 +940,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
                          &gant_chart_time_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -945,6 +959,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                       (char *)"LJF", gant_chart_procs, gant_chart_lines,
                       gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
                       ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -955,6 +970,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
   free(gant_chart_lines);
@@ -1227,6 +1243,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!increment_sbt(&top, bt_increment) || !add_proc_wt(&top, wt) ||
         !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
+      free_atqueue(atq);
       free_btqueue(btq);
       free(proc_table);
       free(gant_chart_lines);
@@ -1245,6 +1262,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
               time, ctx_time, GANT_LINE_COUNT)) {
         free_atqueue(atq);
+        free_btqueue(btq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -1266,6 +1284,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
               top.pid, time, bt_increment, GANT_LINE_COUNT)) {
         free_atqueue(atq);
+        free_btqueue(btq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -1303,6 +1322,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
                        clone_procs, procs_len)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1315,6 +1335,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
                           &gant_chart_lines_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1327,6 +1348,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
                          &gant_chart_time_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1345,6 +1367,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                       (char *)"SRJF", gant_chart_procs, gant_chart_lines,
                       gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
                       ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1355,6 +1378,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
   free(gant_chart_lines);
@@ -1627,6 +1651,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!increment_sbt(&top, bt_increment) || !add_proc_wt(&top, wt) ||
         !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
+      free_atqueue(atq);
       free_btqueue(btq);
       free(proc_table);
       free(gant_chart_lines);
@@ -1645,6 +1670,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
               time, ctx_time, GANT_LINE_COUNT)) {
         free_atqueue(atq);
+        free_btqueue(btq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -1666,6 +1692,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
               top.pid, time, bt_increment, GANT_LINE_COUNT)) {
         free_atqueue(atq);
+        free_btqueue(btq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -1703,6 +1730,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
                        clone_procs, procs_len)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1715,6 +1743,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
                           &gant_chart_lines_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1727,6 +1756,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
                          &gant_chart_time_max)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1745,6 +1775,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                       (char *)"LRJF", gant_chart_procs, gant_chart_lines,
                       gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
                       ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1755,6 +1786,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
   free(gant_chart_lines);
@@ -1940,6 +1972,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     if (!increment_sbt(&top, top.bt) || !add_proc_wt(&top, wt) ||
         !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
       free_atqueue(atq);
+      free_rrqueue(rrq);
       free(proc_table);
       free(gant_chart_lines);
       free(gant_chart_procs);
@@ -1955,6 +1988,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                    &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
                    top.pid, time, top.bt, GANT_LINE_COUNT)) {
       free_atqueue(atq);
+      free_rrqueue(rrq);
       free(proc_table);
       free(gant_chart_lines);
       free(gant_chart_procs);
@@ -1971,6 +2005,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
               time + top.bt, ctx_time, GANT_LINE_COUNT)) {
         free_atqueue(atq);
+        free_rrqueue(rrq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -2019,6 +2054,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
       if (!add_proc_wt(&top, wt)) {
         free_atqueue(atq);
+        free_rrqueue(rrq);
         free(proc_table);
         free(gant_chart_lines);
         free(gant_chart_procs);
@@ -2044,6 +2080,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
                        clone_procs, procs_len)) {
     free_atqueue(atq);
+    free_rrqueue(rrq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2056,6 +2093,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
                           &gant_chart_lines_max)) {
     free_atqueue(atq);
+    free_rrqueue(rrq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2068,6 +2106,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
                          &gant_chart_time_max)) {
     free_atqueue(atq);
+    free_rrqueue(rrq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2086,6 +2125,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                       gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
                       ctx_time, ctx_switch_count, time)) {
     free_atqueue(atq);
+    free_rrqueue(rrq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2096,6 +2136,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   }
 
   free_atqueue(atq);
+  free_rrqueue(rrq);
   free(proc_table);
   free(gant_chart_lines);
   free(gant_chart_procs);
@@ -2368,6 +2409,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     if (!increment_sbt(&top, bt_increment) || !add_proc_wt(&top, wt) ||
         !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
       free_pqueue(pq);
+      free_atqueue(atq);
       free(proc_table);
       free(gant_chart_lines);
       free(gant_chart_procs);
@@ -2384,6 +2426,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
               time, ctx_time, GANT_LINE_COUNT)) {
+        free_pqueue(pq);
         free_atqueue(atq);
         free(proc_table);
         free(gant_chart_lines);
@@ -2405,6 +2448,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
               top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+        free_pqueue(pq);
         free_atqueue(atq);
         free(proc_table);
         free(gant_chart_lines);
@@ -2444,6 +2488,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
                        clone_procs, procs_len)) {
     free_pqueue(pq);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2455,6 +2500,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
                           &gant_chart_lines_max)) {
     free_pqueue(pq);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2467,6 +2513,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
                          &gant_chart_time_max)) {
     free_pqueue(pq);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2485,6 +2532,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                       gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
                       ctx_time, ctx_switch_count, time)) {
     free_pqueue(pq);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2494,6 +2542,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   }
 
   free_pqueue(pq);
+  free_atqueue(atq);
   free(proc_table);
   free(gant_chart_lines);
   free(gant_chart_procs);
@@ -2766,6 +2815,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     if (!increment_sbt(&top, bt_increment) || !add_proc_wt(&top, wt) ||
         !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
       free_queue(q);
+      free_atqueue(atq);
       free(proc_table);
       free(gant_chart_lines);
       free(gant_chart_procs);
@@ -2782,6 +2832,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
               time, ctx_time, GANT_LINE_COUNT)) {
+        free_queue(q);
         free_atqueue(atq);
         free(proc_table);
         free(gant_chart_lines);
@@ -2803,6 +2854,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
               &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
               &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
               top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+        free_queue(q);
         free_atqueue(atq);
         free(proc_table);
         free(gant_chart_lines);
@@ -2842,6 +2894,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
                        clone_procs, procs_len)) {
     free_queue(q);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2853,6 +2906,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
                           &gant_chart_lines_max)) {
     free_queue(q);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2865,6 +2919,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
                          &gant_chart_time_max)) {
     free_queue(q);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2883,6 +2938,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
                       gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
                       ctx_time, ctx_switch_count, time)) {
     free_queue(q);
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2892,6 +2948,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   }
 
   free_queue(q);
+  free_atqueue(atq);
   free(proc_table);
   free(gant_chart_lines);
   free(gant_chart_procs);

@@ -36,6 +36,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
               tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
               tm.tm_sec) >= 0) {
     args->output_dir = buf;
+    args->output_dir_is_default = 1;
   } else {
     free(buf);
     fprintf(stderr,
@@ -85,6 +86,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
     case 'o':
       free(args->output_dir);
       args->output_dir = optarg;
+      args->output_dir_is_default = 0;
       break;
     case 'i':
       args->input_file = optarg;

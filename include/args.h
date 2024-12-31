@@ -26,6 +26,7 @@ typedef struct {
   int algorithms_len;
   int ctx_time;
   int quant;
+  int output_dir_is_default;
   char *output_dir;
   char *input_file;
   int fill_random;

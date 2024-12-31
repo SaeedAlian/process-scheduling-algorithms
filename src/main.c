@@ -112,5 +112,15 @@ int main(int argc, char **argv) {
 
   printf("All algorithm results have been added in %s\n", args.output_dir);
 
+  for (int i = 0; i < procs_len; i++) {
+    if (procs[i] != NULL)
+      free(procs[i]);
+  }
+
+  if (args.output_dir_is_default)
+    free(args.output_dir);
+
+  free(args.algorithms);
+
   return 0;
 }
