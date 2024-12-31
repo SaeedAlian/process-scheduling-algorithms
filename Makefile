@@ -1,42 +1,35 @@
-SRCS = src/main.c src/util.c src/args.c src/proc.c src/queue.c src/algorithms.c
-BIN_DIR = ./bin
-TARGET = $(BIN_DIR)/psa
-DEBUG_TARGET = $(BIN_DIR)/psa_debug
+# Variables
+CC := g++
+CFLAGS := -Wall -Wextra -Iinclude
+BIN_DIR := bin
+SRC_DIR := src
+DEBUG_TARGET := $(BIN_DIR)/psa_debug
+RELEASE_TARGET := $(BIN_DIR)/psa
+SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 
-OUTPUTS_DIR = ./outputs
+# Targets
+.PHONY: all build build-debug debug valgrind clean
 
-CFLAGS = -Wall -Wextra
-SILENT_FLAGS = -w
-DEBUG_FLAGS = -g
-
+# Default target
 all: build
-
-build: mkbin
-	@g++ $(CFLAGS) -o $(TARGET) $(SRCS)
-
-sbuild: mkbin
-	@g++ $(SILENT_FLAGS) -o $(TARGET) $(SRCS)
-
-run: build
-	@$(TARGET)
-
-srun: sbuild
-	@$(TARGET)
-
-build-debug: mkbin
-	@g++ $(CFLAGS) $(DEBUG_FLAGS) -o $(TARGET) $(SRCS)
-
-debug: build-debug
-	@gdb $(DEBUG_TARGET)
-
-valgrind: build-debug
-	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(DEBUG_TARGET)
 
 mkbin:
 	@mkdir -p $(BIN_DIR)
 
-clean:
-	@rm $(BIN_DIR)
+build: mkbin
+	@$(CC) $(CFLAGS) -o $(RELEASE_TARGET) $(SRC_FILES)
 
-clean-all:
-	@rm -rf $(BIN_DIR) $(OUTPUTS_DIR)
+build-debug: mkbin
+	@$(CC) $(CFLAGS) -g -o $(DEBUG_TARGET) $(SRC_FILES)
+
+debug: build-debug
+	@gdb --args $(DEBUG_TARGET) $(ARGS)
+
+valgrind: build-debug
+	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(DEBUG_TARGET) $(ARGS)
+
+run: build
+	@$(RELEASE_TARGET) $(ARGS)
+
+clean:
+	@rm -rf $(BIN_DIR)
