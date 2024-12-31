@@ -390,9 +390,14 @@ FILE *create_file(char *filename) {
   return fptr;
 }
 
-int append_str_to_file(FILE *f, char *s) {
+int append_str_to_file(FILE *f, char *s, int len) {
   if (f != NULL) {
-    if (fputs(s, f) == EOF)
+    for (int i = 0; i < len; i++) {
+      if (fputc(s[i], f) == EOF)
+        return 0;
+    }
+
+    if (fflush(f) != 0)
       return 0;
     return 1;
   } else {

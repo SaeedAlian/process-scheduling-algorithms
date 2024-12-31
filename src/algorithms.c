@@ -31,14 +31,17 @@ int run_non_preemptive_algo(const char *algo_name, char *dirname,
     return 1;
   }
 
-  if (!append_str_to_file(file, info)) {
+  if (!append_str_to_file(file, info, info_len)) {
+    fclose(file);
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
     return 1;
   }
 
+  printf("%i --- %s Printed Successfully \n", info_len, algo_name);
   fclose(file);
+  free(info);
 
   return 1;
 }
@@ -73,14 +76,17 @@ int run_preemptive_algo(const char *algo_name, char *dirname,
     return 1;
   }
 
-  if (!append_str_to_file(file, info)) {
+  if (!append_str_to_file(file, info, info_len)) {
+    fclose(file);
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
     return 1;
   }
 
+  printf("%i --- %s Printed Successfully \n", info_len, algo_name);
   fclose(file);
+  free(info);
 
   return 1;
 }
@@ -249,8 +255,8 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     clone_procs[i++] = top;
   }
 
-  if (!set_proc_table(&proc_table, &proc_table_len, &proc_table_max,
-                      clone_procs, procs_len)) {
+  if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
+                       clone_procs, procs_len)) {
     free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
@@ -289,10 +295,10 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!set_algo_info(output_info, output_info_len, output_info_max,
-                     (char *)"FCFS", gant_chart_procs, gant_chart_lines,
-                     gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                     ctx_time, ctx_switch_count, time)) {
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"FCFS", gant_chart_procs, gant_chart_lines,
+                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
+                      ctx_time, ctx_switch_count, time)) {
     free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
@@ -310,11 +316,6 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(gant_chart_time);
 
   return 1;
-}
-
-int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-       int *output_info_len, int *output_info_max, int quant) {
-  return 0;
 }
 
 int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
@@ -548,7 +549,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       free(gant_chart_procs);
       free(gant_chart_time);
       fprintf(stderr, "Error: something went wrong in printing the gant chart "
-                      "in fcfs algorithm\n");
+                      "in sjf algorithm\n");
       return 0;
     }
 
@@ -565,7 +566,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         free(gant_chart_time);
         fprintf(stderr,
                 "Error: something went wrong in printing the gant chart "
-                "in fcfs algorithm\n");
+                "in sjf algorithm\n");
         return 0;
       }
     }
@@ -578,8 +579,8 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     clone_procs[i++] = top;
   }
 
-  if (!set_proc_table(&proc_table, &proc_table_len, &proc_table_max,
-                      clone_procs, procs_len)) {
+  if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
+                       clone_procs, procs_len)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -617,10 +618,10 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!set_algo_info(output_info, output_info_len, output_info_max,
-                     (char *)"SJF", gant_chart_procs, gant_chart_lines,
-                     gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                     ctx_time, ctx_switch_count, time)) {
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"SJF", gant_chart_procs, gant_chart_lines,
+                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
+                      ctx_time, ctx_switch_count, time)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -871,7 +872,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       free(gant_chart_procs);
       free(gant_chart_time);
       fprintf(stderr, "Error: something went wrong in printing the gant chart "
-                      "in fcfs algorithm\n");
+                      "in ljf algorithm\n");
       return 0;
     }
 
@@ -888,7 +889,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         free(gant_chart_time);
         fprintf(stderr,
                 "Error: something went wrong in printing the gant chart "
-                "in fcfs algorithm\n");
+                "in ljf algorithm\n");
         return 0;
       }
     }
@@ -901,8 +902,8 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     clone_procs[i++] = top;
   }
 
-  if (!set_proc_table(&proc_table, &proc_table_len, &proc_table_max,
-                      clone_procs, procs_len)) {
+  if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
+                       clone_procs, procs_len)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -940,10 +941,10 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!set_algo_info(output_info, output_info_len, output_info_max,
-                     (char *)"ljf", gant_chart_procs, gant_chart_lines,
-                     gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                     ctx_time, ctx_switch_count, time)) {
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"LJF", gant_chart_procs, gant_chart_lines,
+                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
+                      ctx_time, ctx_switch_count, time)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1300,8 +1301,8 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     prev = top;
   }
 
-  if (!set_proc_table(&proc_table, &proc_table_len, &proc_table_max,
-                      clone_procs, procs_len)) {
+  if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
+                       clone_procs, procs_len)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1340,10 +1341,10 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!set_algo_info(output_info, output_info_len, output_info_max,
-                     (char *)"srjf", gant_chart_procs, gant_chart_lines,
-                     gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                     ctx_time, ctx_switch_count, time)) {
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"SRJF", gant_chart_procs, gant_chart_lines,
+                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
+                      ctx_time, ctx_switch_count, time)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1700,8 +1701,8 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     prev = top;
   }
 
-  if (!set_proc_table(&proc_table, &proc_table_len, &proc_table_max,
-                      clone_procs, procs_len)) {
+  if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
+                       clone_procs, procs_len)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1740,10 +1741,10 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!set_algo_info(output_info, output_info_len, output_info_max,
-                     (char *)"lrjf", gant_chart_procs, gant_chart_lines,
-                     gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                     ctx_time, ctx_switch_count, time)) {
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"LRJF", gant_chart_procs, gant_chart_lines,
+                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
+                      ctx_time, ctx_switch_count, time)) {
     free_btqueue(btq);
     free(proc_table);
     free(gant_chart_lines);
@@ -1763,21 +1764,27 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   return 1;
 }
 
-int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-       int *output_info_len, int *output_info_max, int quant) {
-  return 0;
-}
-
 int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
          int *output_info_len, int *output_info_max) {
   return 0;
 }
 
-int set_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
-                  char *algo_name, char *gant_chart_procs,
-                  char *gant_chart_lines, char *gant_chart_time,
-                  char *proc_table, double wt_avg, double rt_avg, double tt_avg,
-                  int ctx_time, int ctx_switch_count, int totaltime) {
+int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
+       int *output_info_len, int *output_info_max, int quant) {
+  return 0;
+}
+
+int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
+       int *output_info_len, int *output_info_max, int quant) {
+  return 0;
+}
+
+int draw_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
+                   char *algo_name, char *gant_chart_procs,
+                   char *gant_chart_lines, char *gant_chart_time,
+                   char *proc_table, double wt_avg, double rt_avg,
+                   double tt_avg, int ctx_time, int ctx_switch_count,
+                   int totaltime) {
   if (!append_str_to_str((char *)"-->>", algo_info, algo_info_len,
                          algo_info_max)) {
     return 0;
@@ -1973,49 +1980,51 @@ int set_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
     return 0;
   }
 
+  (*algo_info)[(*algo_info_len)] = '\0';
+
   return 1;
 }
 
-int set_proc_table(char **info, int *len, int *max, proc *procs,
-                   int procs_len) {
-  int add_char_res = append_str_to_str((char *)"   ", info, len, max);
+int draw_proc_table(char **table, int *len, int *max, proc *procs,
+                    int procs_len) {
+  int add_char_res = append_str_to_str((char *)"   ", table, len, max);
 
   int margin = 15;
 
-  add_char_res += append_str_to_str((char *)"PID", info, len, max);
+  add_char_res += append_str_to_str((char *)"PID", table, len, max);
 
   for (int i = 3; i < margin; i++) {
-    add_char_res += append_str_to_str((char *)" ", info, len, max);
+    add_char_res += append_str_to_str((char *)" ", table, len, max);
   }
 
-  add_char_res += append_str_to_str((char *)"AT", info, len, max);
+  add_char_res += append_str_to_str((char *)"AT", table, len, max);
 
   for (int i = 2; i < margin; i++) {
-    add_char_res += append_str_to_str((char *)" ", info, len, max);
+    add_char_res += append_str_to_str((char *)" ", table, len, max);
   }
 
-  add_char_res += append_str_to_str((char *)"BT", info, len, max);
+  add_char_res += append_str_to_str((char *)"BT", table, len, max);
 
   for (int i = 2; i < margin; i++) {
-    add_char_res += append_str_to_str((char *)" ", info, len, max);
+    add_char_res += append_str_to_str((char *)" ", table, len, max);
   }
 
-  add_char_res += append_str_to_str((char *)"WT", info, len, max);
+  add_char_res += append_str_to_str((char *)"WT", table, len, max);
 
   for (int i = 2; i < margin; i++) {
-    add_char_res += append_str_to_str((char *)" ", info, len, max);
+    add_char_res += append_str_to_str((char *)" ", table, len, max);
   }
 
-  add_char_res += append_str_to_str((char *)"RT", info, len, max);
+  add_char_res += append_str_to_str((char *)"RT", table, len, max);
 
   for (int i = 2; i < margin; i++) {
-    add_char_res += append_str_to_str((char *)" ", info, len, max);
+    add_char_res += append_str_to_str((char *)" ", table, len, max);
   }
 
-  add_char_res += append_str_to_str((char *)"TT", info, len, max);
+  add_char_res += append_str_to_str((char *)"TT", table, len, max);
 
-  add_char_res += append_str_to_str((char *)"\n", info, len, max);
-  add_char_res += append_str_to_str((char *)"   ", info, len, max);
+  add_char_res += append_str_to_str((char *)"\n", table, len, max);
+  add_char_res += append_str_to_str((char *)"   ", table, len, max);
 
   if (add_char_res != 20 + (margin - 2) * 4 + margin - 3) {
     return 0;
@@ -2034,7 +2043,7 @@ int set_proc_table(char **info, int *len, int *max, proc *procs,
       return 0;
     }
 
-    add_char_res = append_str_to_str(formatted_str, info, len, max);
+    add_char_res = append_str_to_str(formatted_str, table, len, max);
     if (add_char_res == 0) {
       return 0;
     }
@@ -2042,14 +2051,14 @@ int set_proc_table(char **info, int *len, int *max, proc *procs,
     formatted_str_len = strlen(formatted_str);
     expected_second_add_char_res += margin - formatted_str_len;
     for (int i = formatted_str_len; i < margin; i++) {
-      second_add_char_res += append_str_to_str((char *)" ", info, len, max);
+      second_add_char_res += append_str_to_str((char *)" ", table, len, max);
     }
 
     if (sprintf(formatted_str, "%d", p.at) < 0) {
       return 0;
     }
 
-    add_char_res = append_str_to_str(formatted_str, info, len, max);
+    add_char_res = append_str_to_str(formatted_str, table, len, max);
     if (add_char_res == 0) {
       return 0;
     }
@@ -2057,14 +2066,14 @@ int set_proc_table(char **info, int *len, int *max, proc *procs,
     formatted_str_len = strlen(formatted_str);
     expected_second_add_char_res += margin - formatted_str_len;
     for (int i = formatted_str_len; i < margin; i++) {
-      second_add_char_res += append_str_to_str((char *)" ", info, len, max);
+      second_add_char_res += append_str_to_str((char *)" ", table, len, max);
     }
 
     if (sprintf(formatted_str, "%d", p.bt) < 0) {
       return 0;
     }
 
-    add_char_res = append_str_to_str(formatted_str, info, len, max);
+    add_char_res = append_str_to_str(formatted_str, table, len, max);
     if (add_char_res == 0) {
       return 0;
     }
@@ -2072,14 +2081,14 @@ int set_proc_table(char **info, int *len, int *max, proc *procs,
     formatted_str_len = strlen(formatted_str);
     expected_second_add_char_res += margin - formatted_str_len;
     for (int i = formatted_str_len; i < margin; i++) {
-      second_add_char_res += append_str_to_str((char *)" ", info, len, max);
+      second_add_char_res += append_str_to_str((char *)" ", table, len, max);
     }
 
     if (sprintf(formatted_str, "%d", p.wt) < 0) {
       return 0;
     }
 
-    add_char_res = append_str_to_str(formatted_str, info, len, max);
+    add_char_res = append_str_to_str(formatted_str, table, len, max);
     if (add_char_res == 0) {
       return 0;
     }
@@ -2087,14 +2096,14 @@ int set_proc_table(char **info, int *len, int *max, proc *procs,
     formatted_str_len = strlen(formatted_str);
     expected_second_add_char_res += margin - formatted_str_len;
     for (int i = formatted_str_len; i < margin; i++) {
-      second_add_char_res += append_str_to_str((char *)" ", info, len, max);
+      second_add_char_res += append_str_to_str((char *)" ", table, len, max);
     }
 
     if (sprintf(formatted_str, "%d", p.rt) < 0) {
       return 0;
     }
 
-    add_char_res = append_str_to_str(formatted_str, info, len, max);
+    add_char_res = append_str_to_str(formatted_str, table, len, max);
     if (add_char_res == 0) {
       return 0;
     }
@@ -2102,20 +2111,20 @@ int set_proc_table(char **info, int *len, int *max, proc *procs,
     formatted_str_len = strlen(formatted_str);
     expected_second_add_char_res += margin - formatted_str_len;
     for (int i = formatted_str_len; i < margin; i++) {
-      second_add_char_res += append_str_to_str((char *)" ", info, len, max);
+      second_add_char_res += append_str_to_str((char *)" ", table, len, max);
     }
 
     if (sprintf(formatted_str, "%d", p.tt) < 0) {
       return 0;
     }
 
-    add_char_res = append_str_to_str(formatted_str, info, len, max);
+    add_char_res = append_str_to_str(formatted_str, table, len, max);
     if (add_char_res == 0) {
       return 0;
     }
 
-    second_add_char_res += append_str_to_str((char *)"\n", info, len, max);
-    second_add_char_res += append_str_to_str((char *)"   ", info, len, max);
+    second_add_char_res += append_str_to_str((char *)"\n", table, len, max);
+    second_add_char_res += append_str_to_str((char *)"   ", table, len, max);
 
     if (second_add_char_res != expected_second_add_char_res + 4) {
       return 0;
@@ -2125,33 +2134,36 @@ int set_proc_table(char **info, int *len, int *max, proc *procs,
     expected_second_add_char_res = 0;
   }
 
+  (*table)[(*len)] = '\0';
+
   return 1;
 }
 
-int draw_gant(char **procs_section, int *procs_len, int *procs_max,
-              char **lines_section, int *lines_len, int *lines_max,
-              char **time_section, int *time_len, int *time_max, int pid,
-              int current_time, int burst, int line_count) {
+int draw_gant(char **procs_section, int *procs_section_len,
+              int *procs_section_max, char **lines_section,
+              int *lines_section_len, int *lines_section_max,
+              char **time_section, int *time_section_len, int *time_section_max,
+              int pid, int current_time, int burst, int line_count) {
   if (burst == 0)
     return 1;
 
-  if (!draw_gant_proc(procs_section, procs_len, procs_max, pid, burst,
-                      line_count))
+  if (!draw_gant_proc(procs_section, procs_section_len, procs_section_max, pid,
+                      burst, line_count))
     return 0;
 
-  if (!draw_gant_line(lines_section, lines_len, lines_max, burst, pid == -1,
-                      line_count))
+  if (!draw_gant_line(lines_section, lines_section_len, lines_section_max,
+                      burst, pid == -1, line_count))
     return 0;
 
-  if (!draw_gant_time(time_section, time_len, time_max, current_time, burst,
-                      line_count))
+  if (!draw_gant_time(time_section, time_section_len, time_section_max,
+                      current_time, burst, line_count))
     return 0;
 
   return 1;
 }
 
-int draw_gant_proc(char **procs_section, int *procs_len, int *procs_max,
-                   int pid, int burst, int line_count) {
+int draw_gant_proc(char **procs_section, int *procs_section_len,
+                   int *procs_section_max, int pid, int burst, int line_count) {
   int total_lines = (burst * line_count) + 1;
 
   char pname[32];
@@ -2165,15 +2177,16 @@ int draw_gant_proc(char **procs_section, int *procs_len, int *procs_max,
     }
   }
 
-  int add_char_res =
-      append_str_to_str(pname, procs_section, procs_len, procs_max);
+  int add_char_res = append_str_to_str(pname, procs_section, procs_section_len,
+                                       procs_section_max);
 
   if (add_char_res == 0) {
     return 0;
   }
 
   for (int i = add_char_res; i < total_lines; i++) {
-    add_char_res = append_char_to_str(' ', procs_section, procs_len, procs_max);
+    add_char_res = append_char_to_str(' ', procs_section, procs_section_len,
+                                      procs_section_max);
 
     if (add_char_res == 0) {
       return 0;
@@ -2181,6 +2194,8 @@ int draw_gant_proc(char **procs_section, int *procs_len, int *procs_max,
   }
 
   add_char_res = 0;
+
+  (*procs_section)[(*procs_section_len)] = '\0';
 
   return 1;
 }
@@ -2206,6 +2221,8 @@ int draw_gant_line(char **lines_section, int *lines_section_len,
     return 0;
   }
 
+  (*lines_section)[(*lines_section_len)] = '\0';
+
   return 1;
 }
 
@@ -2230,6 +2247,8 @@ int draw_gant_time(char **time_section, int *time_section_len,
     }
   }
 
+  (*time_section)[(*time_section_len)] = '\0';
+
   return 1;
 }
 
@@ -2248,6 +2267,8 @@ int append_num_to_str(int i, char **str, int *len, int *max) {
     char_added++;
   }
 
+  (*str)[(*len)] = '\0';
+
   return char_added;
 }
 
@@ -2265,6 +2286,8 @@ int append_decimal_to_str(double i, char **str, int *len, int *max) {
 
     char_added++;
   }
+
+  (*str)[(*len)] = '\0';
 
   return char_added;
 }
@@ -2285,6 +2308,8 @@ int append_str_to_str(char *s, char **str, int *len, int *max) {
 
     char_added++;
   }
+
+  (*str)[(*len)] = '\0';
 
   return char_added;
 }

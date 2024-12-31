@@ -21,7 +21,7 @@
 
 int ensure_directory_exists(char *dir_path);
 FILE *create_file(char *filename);
-int append_str_to_file(FILE *f, char *s);
+int append_str_to_file(FILE *f, char *s, int len);
 
 int get_input(const char *prmpt, char *buff, size_t size);
 
