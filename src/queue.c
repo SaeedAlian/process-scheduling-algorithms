@@ -54,6 +54,24 @@ pqueue *new_pqueue(int max, enum qorder order) {
   return q;
 }
 
+rrqueue *new_rrqueue(int max, enum qorder order) {
+  rrqueue *q = (rrqueue *)malloc(sizeof(rrqueue));
+  if (q == NULL)
+    return NULL;
+
+  q->max = max;
+  q->front = -1;
+  q->rear = -1;
+  q->order = order;
+  q->items = (proc *)malloc(sizeof(proc) * q->max);
+  if (q->items == NULL) {
+    free(q);
+    return NULL;
+  }
+
+  return q;
+}
+
 queue *new_queue(int max) {
   queue *q = (queue *)malloc(sizeof(queue));
   if (q == NULL)
@@ -143,6 +161,37 @@ pqueue *clone_pqueue(pqueue *q) {
   clone->rear = q->rear;
 
   if (pqueue_is_empty(q)) {
+    return clone;
+  }
+
+  for (int i = q->front; i <= q->rear; i++) {
+    proc p;
+    p.pid = q->items[i].pid;
+    p.at = q->items[i].at;
+    p.bt = q->items[i].bt;
+    p.pri = q->items[i].pri;
+
+    p.wt = q->items[i].wt;
+    p.rt = q->items[i].rt;
+    p.tt = q->items[i].tt;
+    p.sbt = q->items[i].sbt;
+
+    clone->items[i] = p;
+  }
+
+  return clone;
+}
+
+rrqueue *clone_rrqueue(rrqueue *q) {
+  rrqueue *clone = new_rrqueue(q->max, q->order);
+
+  if (clone == NULL)
+    return NULL;
+
+  clone->front = q->front;
+  clone->rear = q->rear;
+
+  if (rrqueue_is_empty(q)) {
     return clone;
   }
 
@@ -263,6 +312,28 @@ int p_enqueue(pqueue *q, proc p) {
   return 1;
 }
 
+int rr_enqueue(rrqueue *q, proc p) {
+  if (rrqueue_is_full(q)) {
+    q->max *= 2;
+    proc *temp = (proc *)realloc(q->items, sizeof(proc) * q->max);
+    if (temp == NULL) {
+      return 0;
+    }
+
+    q->items = temp;
+  }
+
+  if (q->front == -1)
+    q->front++;
+
+  int new_rear = q->rear + 1;
+  q->items[new_rear] = p;
+  q->rear = new_rear;
+  heapify_up_rrqueue(q, q->rear);
+
+  return 1;
+}
+
 int enqueue(queue *q, proc p) {
   if (queue_is_full(q)) {
     q->max *= 2;
@@ -358,6 +429,27 @@ int p_dequeue(pqueue *q, proc *out) {
   return 1;
 }
 
+int rr_dequeue(rrqueue *q, proc *out) {
+  if (rrqueue_is_empty(q)) {
+    return 0;
+  }
+
+  proc top = q->items[q->front];
+  if (q->front == q->rear) {
+    q->front = q->rear = -1;
+    *out = top;
+    return 1;
+  }
+
+  swap_procs(&q->items[q->rear], &q->items[q->front]);
+  q->rear--;
+  heapify_down_rrqueue(q, q->front);
+
+  *out = top;
+
+  return 1;
+}
+
 int dequeue(queue *q, proc *out) {
   if (queue_is_empty(q)) {
     return 0;
@@ -394,6 +486,14 @@ int peek_btqueue(btqueue *q, proc *out) {
 
 int peek_pqueue(pqueue *q, proc *out) {
   if (pqueue_is_empty(q))
+    return 0;
+
+  *out = q->items[q->front];
+  return 1;
+}
+
+int peek_rrqueue(rrqueue *q, proc *out) {
+  if (rrqueue_is_empty(q))
     return 0;
 
   *out = q->items[q->front];
@@ -531,6 +631,59 @@ void heapify_down_pqueue(pqueue *q, int index) {
   }
 }
 
+void heapify_down_rrqueue(rrqueue *q, int index) {
+  int largest = index;
+  int left = index * 2 + 1;
+  int right = index * 2 + 2;
+
+  int largest_rr = q->items[largest].wt / q->items[largest].bt;
+  int left_rr = q->items[left].wt / q->items[left].bt;
+  int right_rr = q->items[right].wt / q->items[right].bt;
+
+  if (q->order == ASC) {
+    if (left <= q->rear &&
+        (left_rr > largest_rr ||
+         (left_rr == largest_rr && q->items[left].at < q->items[largest].at) ||
+         (left_rr == largest_rr && q->items[left].at == q->items[largest].at &&
+          q->items[left].pri < q->items[largest].pri))) {
+      largest = left;
+      largest_rr = q->items[largest].wt / q->items[largest].bt;
+    }
+
+    if (right <= q->rear && (right_rr > largest_rr ||
+                             (right_rr == largest_rr &&
+                              q->items[right].at < q->items[largest].at) ||
+                             (right_rr == largest_rr &&
+                              q->items[right].at == q->items[largest].at &&
+                              q->items[right].pri < q->items[largest].pri))) {
+      largest = right;
+    }
+  } else {
+    if (left <= q->rear &&
+        (left_rr < largest_rr ||
+         (left_rr == largest_rr && q->items[left].at < q->items[largest].at) ||
+         (left_rr == largest_rr && q->items[left].at == q->items[largest].at &&
+          q->items[left].pri > q->items[largest].pri))) {
+      largest = left;
+      largest_rr = q->items[largest].wt / q->items[largest].bt;
+    }
+
+    if (right <= q->rear && (right_rr < largest_rr ||
+                             (right_rr == largest_rr &&
+                              q->items[right].at < q->items[largest].at) ||
+                             (right_rr == largest_rr &&
+                              q->items[right].at == q->items[largest].at &&
+                              q->items[right].pri > q->items[largest].pri))) {
+      largest = right;
+    }
+  }
+
+  if (largest != index) {
+    swap_procs(&q->items[largest], &q->items[index]);
+    heapify_down_rrqueue(q, largest);
+  }
+}
+
 void heapify_up_atqueue(atqueue *q, int index) {
   if (index < 0)
     return;
@@ -630,6 +783,43 @@ void heapify_up_pqueue(pqueue *q, int index) {
   heapify_up_pqueue(q, parent);
 }
 
+void heapify_up_rrqueue(rrqueue *q, int index) {
+  if (index < 0)
+    return;
+
+  int parent = (index - 1) / 2;
+
+  if (parent < 0 || parent == index)
+    return;
+
+  int swap = 0;
+
+  int index_rr = q->items[index].wt / q->items[index].bt;
+  int parent_rr = q->items[parent].wt / q->items[parent].bt;
+
+  if (q->order == ASC) {
+    if ((index_rr > parent_rr ||
+         (index_rr == parent_rr && q->items[index].at < q->items[parent].at) ||
+         (index_rr == parent_rr && q->items[index].at == q->items[parent].at &&
+          q->items[index].pri < q->items[parent].pri))) {
+      swap = 1;
+    }
+  } else {
+    if ((index_rr < parent_rr ||
+         (index_rr == parent_rr && q->items[index].at < q->items[parent].at) ||
+         (index_rr == parent_rr && q->items[index].at == q->items[parent].at &&
+          q->items[index].pri > q->items[parent].pri))) {
+      swap = 1;
+    }
+  }
+
+  if (!swap)
+    return;
+
+  swap_procs(&q->items[parent], &q->items[index]);
+  heapify_up_rrqueue(q, parent);
+}
+
 int atqueue_length(atqueue *q) {
   if (atqueue_is_empty(q))
     return 0;
@@ -646,6 +836,13 @@ int btqueue_length(btqueue *q) {
 
 int pqueue_length(pqueue *q) {
   if (pqueue_is_empty(q))
+    return 0;
+
+  return q->rear - q->front + 1;
+}
+
+int rrqueue_length(rrqueue *q) {
+  if (rrqueue_is_empty(q))
     return 0;
 
   return q->rear - q->front + 1;
@@ -786,11 +983,47 @@ proc *get_sorted_pqueue_elements(pqueue *q, int *len) {
   return s;
 }
 
+proc *get_sorted_rrqueue_elements(rrqueue *q, int *len) {
+  *len = rrqueue_length(q);
+  if ((*len) == 0)
+    return NULL;
+
+  proc *s = (proc *)malloc(sizeof(proc) * (*len));
+  if (s == NULL) {
+    *len = -1;
+    return NULL;
+  }
+
+  rrqueue *clone = clone_rrqueue(q);
+  if (clone == NULL) {
+    free(s);
+    *len = -1;
+    return NULL;
+  }
+
+  int i = 0;
+  while (!rrqueue_is_empty(clone)) {
+    proc p;
+    if (!rr_dequeue(clone, &p)) {
+      free(s);
+      free_rrqueue(clone);
+      *len = -1;
+      return NULL;
+    }
+    s[i++] = p;
+  }
+
+  free_rrqueue(clone);
+  return s;
+}
+
 int atqueue_is_full(atqueue *q) { return q->rear == q->max - 1; }
 
 int btqueue_is_full(btqueue *q) { return q->rear == q->max - 1; }
 
 int pqueue_is_full(pqueue *q) { return q->rear == q->max - 1; }
+
+int rrqueue_is_full(rrqueue *q) { return q->rear == q->max - 1; }
 
 int queue_is_full(queue *q) { return (q->rear + 1) % q->max == q->front; }
 
@@ -799,6 +1032,8 @@ int atqueue_is_empty(atqueue *q) { return q->front == -1; }
 int btqueue_is_empty(btqueue *q) { return q->front == -1; }
 
 int pqueue_is_empty(pqueue *q) { return q->front == -1; }
+
+int rrqueue_is_empty(rrqueue *q) { return q->front == -1; }
 
 int queue_is_empty(queue *q) { return q->front == -1; }
 
@@ -901,6 +1136,39 @@ void print_pqueue(pqueue *q) {
   free(sorted);
 }
 
+void print_rrqueue(rrqueue *q) {
+  printf("Priority Queue: (Response ratio based) ");
+
+  if (q->order == ASC) {
+    printf("Ascending order\n");
+  } else {
+    printf("Descending order\n");
+  }
+
+  printf("   ");
+
+  int len;
+  proc *sorted = get_sorted_rrqueue_elements(q, &len);
+
+  if (len < 0 && sorted == NULL) {
+    fprintf(stderr, "Error: cannot print queue");
+    return;
+  }
+
+  if (sorted == NULL || len == 0) {
+    printf("Empty Queue");
+    return;
+  }
+
+  for (int i = 0; i < len; i++) {
+    print_proc(&sorted[i]);
+    printf("   ");
+  }
+  printf("\n");
+
+  free(sorted);
+}
+
 void print_queue(queue *q) {
   printf("Queue: ");
   printf("   ");
@@ -942,6 +1210,11 @@ void free_btqueue(btqueue *q) {
 }
 
 void free_pqueue(pqueue *q) {
+  free(q->items);
+  free(q);
+}
+
+void free_rrqueue(rrqueue *q) {
   free(q->items);
   free(q);
 }
