@@ -8,6 +8,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
   static struct option long_options[] = {
       {"algorithms", required_argument, 0, 'a'},
       {"ctx-time", required_argument, 0, 'c'},
+      {"quant", required_argument, 0, 'q'},
       {"output", required_argument, 0, 'o'},
       {"input", required_argument, 0, 'i'},
       {"random", no_argument, 0, 'r'},
@@ -17,6 +18,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
   char algorithms_str[MAX_ALGORITHMS];
   args->input_file = NULL;
   args->ctx_time = 0;
+  args->quant = 1;
   args->fill_random = 0;
   args->algorithms_len = 0;
 
@@ -41,7 +43,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
     return 0;
   }
 
-  while ((opt = getopt_long(argc, argv, "a:o:c:i:hr", long_options,
+  while ((opt = getopt_long(argc, argv, "a:o:c:q:i:hr", long_options,
                             &long_index)) != -1) {
     switch (opt) {
     case 'a':
@@ -56,10 +58,22 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
       strncpy(algorithms_str, optarg, MAX_ALGORITHMS - 1);
       algorithms_str[MAX_ALGORITHMS - 1] = '\0';
       break;
+    case 'q': {
+      char *endptr;
+      errno = 0;
+      int quant = strtol(optarg, &endptr, 10);
+      if (errno != 0 || *endptr != '\0' || endptr == optarg) {
+        free(buf);
+        fprintf(stderr, "Error: invalid quant time format.\n");
+        return 0;
+      }
+      args->quant = quant;
+      break;
+    }
     case 'c': {
       char *endptr;
       errno = 0;
-      float ctx = strtof(optarg, &endptr);
+      int ctx = strtol(optarg, &endptr, 10);
       if (errno != 0 || *endptr != '\0' || endptr == optarg) {
         free(buf);
         fprintf(stderr, "Error: invalid context time format.\n");
@@ -79,6 +93,7 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
       args->fill_random = 1;
       break;
     case 'h':
+      // TODO UPDATE HELP
       printf("Usage: %s [OPTIONS]\n", argv[0]);
       printf("Options:\n");
       printf("  -a, --algorithms <algorithms>  Comma-separated list of "
@@ -110,6 +125,12 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
   args->algorithms_len = length;
 
   if (!validate_ctx_time(args->ctx_time)) {
+    free(buf);
+    free(tokenized_algorithms);
+    return 0;
+  }
+
+  if (!validate_quant(args->quant)) {
     free(buf);
     free(tokenized_algorithms);
     return 0;
@@ -212,9 +233,17 @@ int *tokenize_algorithms(char *algorithms, int *length) {
   return tokenized;
 }
 
-int validate_ctx_time(float ctx_time) {
-  if (ctx_time < 0.0 || ctx_time > 5.0) {
+int validate_ctx_time(int ctx_time) {
+  if (ctx_time < 0 || ctx_time > 5) {
     fprintf(stderr, "Error: context switch time must be between 0 and 5\n");
+    return 0;
+  }
+  return 1;
+}
+
+int validate_quant(int quant) {
+  if (quant < 1 || quant > 5) {
+    fprintf(stderr, "Error: quant time must be between 1 and 5\n");
     return 0;
   }
   return 1;

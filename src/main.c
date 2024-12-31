@@ -37,8 +37,8 @@ int main(int argc, char **argv) {
 
     switch (alg) {
     case FCFS: {
-      if (!run_alog("fcfs", args.output_dir, fcfs, procs, procs_len,
-                    args.ctx_time)) {
+      if (!run_non_preemptive_algo("fcfs", args.output_dir, fcfs, procs,
+                                   procs_len, args.ctx_time)) {
         return 1;
       }
 
@@ -46,8 +46,8 @@ int main(int argc, char **argv) {
     }
 
     case PS: {
-      if (!run_alog("ps", args.output_dir, ps, procs, procs_len, args.ctx_time,
-                    args.quant)) {
+      if (!run_preemptive_algo("ps", args.output_dir, ps, procs, procs_len,
+                               args.ctx_time, args.quant)) {
         return 1;
       }
 
@@ -55,8 +55,8 @@ int main(int argc, char **argv) {
     }
 
     case SRJF: {
-      if (!run_alog("srjf", args.output_dir, srjf, procs, procs_len,
-                    args.ctx_time, args.quant)) {
+      if (!run_preemptive_algo("srjf", args.output_dir, srjf, procs, procs_len,
+                               args.ctx_time, args.quant)) {
         return 1;
       }
 
@@ -64,8 +64,8 @@ int main(int argc, char **argv) {
     }
 
     case LRJF: {
-      if (!run_alog("lrjf", args.output_dir, lrjf, procs, procs_len,
-                    args.ctx_time, args.quant)) {
+      if (!run_preemptive_algo("lrjf", args.output_dir, lrjf, procs, procs_len,
+                               args.ctx_time, args.quant)) {
         return 1;
       }
 
@@ -73,8 +73,8 @@ int main(int argc, char **argv) {
     }
 
     case RR: {
-      if (!run_alog("rr", args.output_dir, rr, procs, procs_len, args.ctx_time,
-                    args.quant)) {
+      if (!run_preemptive_algo("rr", args.output_dir, rr, procs, procs_len,
+                               args.ctx_time, args.quant)) {
         return 1;
       }
 
@@ -82,8 +82,8 @@ int main(int argc, char **argv) {
     }
 
     case SJF: {
-      if (!run_alog("sjf", args.output_dir, sjf, procs, procs_len,
-                    args.ctx_time)) {
+      if (!run_non_preemptive_algo("sjf", args.output_dir, sjf, procs,
+                                   procs_len, args.ctx_time)) {
         return 1;
       }
 
@@ -91,8 +91,8 @@ int main(int argc, char **argv) {
     }
 
     case LJF: {
-      if (!run_alog("ljf", args.output_dir, ljf, procs, procs_len,
-                    args.ctx_time)) {
+      if (!run_non_preemptive_algo("ljf", args.output_dir, ljf, procs,
+                                   procs_len, args.ctx_time)) {
         return 1;
       }
 
@@ -100,8 +100,8 @@ int main(int argc, char **argv) {
     }
 
     case HRRN: {
-      if (!run_alog("hrrn", args.output_dir, hrrn, procs, procs_len,
-                    args.ctx_time)) {
+      if (!run_non_preemptive_algo("hrrn", args.output_dir, hrrn, procs,
+                                   procs_len, args.ctx_time)) {
         return 1;
       }
 
