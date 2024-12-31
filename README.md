@@ -16,7 +16,7 @@ This project implements a process scheduling algorithm simulator. It allows user
 ```
 process-scheduling-algorithms/
 |-- Makefile            # Build system
-|-- input.txt           # Sample input file
+|-- ex_input.txt        # Sample input file
 |-- include/            # Header files
 |   |-- args.h
 |   |-- algorithms.h
