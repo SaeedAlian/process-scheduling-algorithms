@@ -90,6 +90,12 @@ atqueue *clone_atqueue(atqueue *q) {
     p.at = q->items[i].at;
     p.bt = q->items[i].bt;
     p.pri = q->items[i].pri;
+
+    p.wt = q->items[i].wt;
+    p.rt = q->items[i].rt;
+    p.tt = q->items[i].tt;
+    p.sbt = q->items[i].sbt;
+
     clone->items[i] = p;
   }
 
@@ -115,6 +121,12 @@ btqueue *clone_btqueue(btqueue *q) {
     p.at = q->items[i].at;
     p.bt = q->items[i].bt;
     p.pri = q->items[i].pri;
+
+    p.wt = q->items[i].wt;
+    p.rt = q->items[i].rt;
+    p.tt = q->items[i].tt;
+    p.sbt = q->items[i].sbt;
+
     clone->items[i] = p;
   }
 
@@ -140,6 +152,12 @@ pqueue *clone_pqueue(pqueue *q) {
     p.at = q->items[i].at;
     p.bt = q->items[i].bt;
     p.pri = q->items[i].pri;
+
+    p.wt = q->items[i].wt;
+    p.rt = q->items[i].rt;
+    p.tt = q->items[i].tt;
+    p.sbt = q->items[i].sbt;
+
     clone->items[i] = p;
   }
 
@@ -166,6 +184,12 @@ queue *clone_queue(queue *q) {
       p.at = q->items[i].at;
       p.bt = q->items[i].bt;
       p.pri = q->items[i].pri;
+
+      p.wt = q->items[i].wt;
+      p.rt = q->items[i].rt;
+      p.tt = q->items[i].tt;
+      p.sbt = q->items[i].sbt;
+
       clone->items[i] = p;
     }
   }
@@ -928,9 +952,17 @@ void swap_procs(proc *a, proc *b) {
   a->at = b->at;
   a->bt = b->bt;
   a->pri = b->pri;
+  a->wt = b->wt;
+  a->rt = b->rt;
+  a->tt = b->tt;
+  a->sbt = b->sbt;
 
   b->pid = temp.pid;
   b->at = temp.at;
   b->bt = temp.bt;
   b->pri = temp.pri;
+  b->wt = temp.wt;
+  b->rt = temp.rt;
+  b->tt = temp.tt;
+  b->sbt = temp.sbt;
 }
