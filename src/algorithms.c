@@ -1771,12 +1771,798 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
 int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
        int *output_info_len, int *output_info_max, int quant) {
-  return 0;
+  if (output_info == NULL || output_info_len == NULL ||
+      output_info_max == NULL) {
+    fprintf(stderr, "Error: the output info string is empty\n");
+    return 0;
+  }
+
+  int i = 0;
+  proc clone_procs[procs_len];
+
+  atqueue *atq = new_atqueue(procs_len, DESC);
+  if (atq == NULL) {
+    fprintf(stderr, "Error: cannot put processes into queue\n");
+    return 0;
+  }
+
+  pqueue *pq = new_pqueue(procs_len, ASC);
+
+  if (pq == NULL) {
+    free_atqueue(atq);
+    fprintf(stderr, "Error: cannot put processes into queue\n");
+    return 0;
+  }
+
+  for (int i = 0; i < procs_len; i++) {
+    if (!at_enqueue(atq, *(procs[i]))) {
+      free_pqueue(pq);
+      free_atqueue(atq);
+      fprintf(stderr, "Error: cannot put processes into queue\n");
+      return 0;
+    }
+  }
+
+  int proc_table_max = ALGO_INFO_SECTION_SIZE;
+  int proc_table_len = 0;
+  char *proc_table = (char *)malloc(sizeof(char) * proc_table_max);
+
+  if (proc_table == NULL) {
+    free_pqueue(pq);
+    free_atqueue(atq);
+    fprintf(stderr, "Error: cannot create the gant chart for ps algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_procs_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_procs_len = 0;
+  char *gant_chart_procs = (char *)malloc(sizeof(char) * gant_chart_procs_max);
+
+  if (gant_chart_procs == NULL) {
+    free_pqueue(pq);
+    free_atqueue(atq);
+    free(proc_table);
+    fprintf(stderr, "Error: cannot create the gant chart for ps algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_lines_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_lines_len = 0;
+  char *gant_chart_lines = (char *)malloc(sizeof(char) * gant_chart_lines_max);
+
+  if (gant_chart_lines == NULL) {
+    free_pqueue(pq);
+    free_atqueue(atq);
+    free(proc_table);
+    free(gant_chart_procs);
+    fprintf(stderr, "Error: cannot create the gant chart for ps algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_time_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_time_len = 0;
+  char *gant_chart_time = (char *)malloc(sizeof(char) * gant_chart_time_max);
+
+  if (gant_chart_time == NULL) {
+    free_pqueue(pq);
+    free_atqueue(atq);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_lines);
+    fprintf(stderr, "Error: cannot create the gant chart for ps algorithm\n");
+    return 0;
+  }
+
+  int time = 0;
+  int ctx_switch_count = 0;
+  int wt_sum = 0;
+  int rt_sum = 0;
+  int tt_sum = 0;
+
+  proc top;
+  proc prev;
+  prev.pid = -1;
+
+  while (i < procs_len) {
+    int arrived_immediately = 0;
+    int has_ctx_switch = 0;
+
+    if (atqueue_is_empty(atq) && pqueue_is_empty(pq)) {
+      free_atqueue(atq);
+      free_pqueue(pq);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in enqueuing\n");
+      return 0;
+    }
+
+    if (pqueue_is_empty(pq)) {
+      if (!at_dequeue(atq, &top)) {
+        free_atqueue(atq);
+        free_pqueue(pq);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in dequeuing\n");
+        return 0;
+      }
+
+      arrived_immediately = 1;
+
+      if (prev.pid != -1 && prev.pid != top.pid && top.at < time + ctx_time) {
+        has_ctx_switch = 1;
+      } else {
+        time = top.at;
+        has_ctx_switch = 0;
+      }
+
+      if (!p_enqueue(pq, top)) {
+        free_atqueue(atq);
+        free_pqueue(pq);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in enqueuing\n");
+        return 0;
+      }
+    }
+
+    proc top_bt;
+    if (!peek_pqueue(pq, &top_bt)) {
+      free_atqueue(atq);
+      free_pqueue(pq);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in peeking the queue\n");
+      return 0;
+    }
+
+    while (!atqueue_is_empty(atq)) {
+      if (!peek_atqueue(atq, &top)) {
+        free_atqueue(atq);
+        free_pqueue(pq);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in peeking the queue\n");
+        return 0;
+      }
+
+      int current_time =
+          prev.pid != -1 && prev.pid != top.pid ? time + ctx_time : time;
+
+      if (top.at > current_time)
+        break;
+
+      if (!at_dequeue(atq, &top)) {
+        free_atqueue(atq);
+        free_pqueue(pq);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in dequeuing\n");
+        return 0;
+      }
+
+      if (!p_enqueue(pq, top)) {
+        free_atqueue(atq);
+        free_pqueue(pq);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in enqueuing\n");
+        return 0;
+      }
+    }
+
+    if (pqueue_is_empty(pq)) {
+      free_atqueue(atq);
+      free_pqueue(pq);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in enqueuing\n");
+      return 0;
+    }
+
+    if (!p_dequeue(pq, &top)) {
+      free_atqueue(atq);
+      free_pqueue(pq);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in dequeuing\n");
+      return 0;
+    }
+
+    int proc_is_switched = prev.pid != -1 && prev.pid != top.pid;
+
+    int bt_remaining = top.bt - top.sbt;
+    int bt_increment = quant;
+    int updated_bt_remaining = bt_remaining - bt_increment;
+    int is_finished_before_quant = 0;
+
+    if (updated_bt_remaining <= 0) {
+      bt_increment = bt_remaining;
+      updated_bt_remaining = bt_remaining - bt_increment;
+      is_finished_before_quant = 1;
+    }
+
+    int is_finished = is_finished_before_quant || bt_remaining <= 0;
+
+    int wt;
+    int tt;
+    int rt = top.rt;
+
+    if (prev.pid == -1) {
+      wt = 0;
+    } else {
+      if (arrived_immediately) {
+        if (has_ctx_switch) {
+          wt = top.wt != -1 ? top.wt + time + ctx_time - top.at
+                            : time + ctx_time - top.at;
+        } else {
+          wt = top.wt != -1 ? top.wt : 0;
+        }
+      } else {
+        wt = (time - top.at) - top.sbt;
+
+        if (proc_is_switched) {
+          wt += ctx_time;
+        }
+      }
+    }
+
+    if (top.rt == -1) {
+      rt = wt;
+    }
+
+    tt = wt + top.sbt + bt_increment;
+
+    if (!increment_sbt(&top, bt_increment) || !add_proc_wt(&top, wt) ||
+        !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
+      free_pqueue(pq);
+      free(proc_table);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in adding stats into "
+                      "processes\n");
+      return 0;
+    }
+
+    if ((arrived_immediately && has_ctx_switch) ||
+        (!arrived_immediately && proc_is_switched)) {
+      if (!draw_gant(
+              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
+              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
+              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
+              time, ctx_time, GANT_LINE_COUNT)) {
+        free_atqueue(atq);
+        free(proc_table);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(gant_chart_time);
+        fprintf(stderr,
+                "Error: something went wrong in printing the gant chart "
+                "in ps algorithm\n");
+        return 0;
+      }
+
+      ctx_switch_count++;
+      time += ctx_time;
+    }
+
+    if (!is_finished || is_finished_before_quant) {
+      if (!draw_gant(
+              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
+              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
+              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
+              top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+        free_atqueue(atq);
+        free(proc_table);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(gant_chart_time);
+        fprintf(stderr,
+                "Error: something went wrong in printing the gant chart "
+                "in ps algorithm\n");
+        return 0;
+      }
+    }
+
+    time += bt_increment;
+
+    if (is_finished) {
+      wt_sum += wt;
+      tt_sum += tt;
+      rt_sum += rt;
+
+      clone_procs[i++] = top;
+    } else {
+      if (!p_enqueue(pq, top)) {
+        free_atqueue(atq);
+        free_pqueue(pq);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in dequeuing\n");
+        return 0;
+      }
+    }
+
+    prev = top;
+  }
+
+  if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
+                       clone_procs, procs_len)) {
+    free_pqueue(pq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: couldn't set the process table in ps algorithm\n");
+    return 0;
+  }
+
+  if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
+                          &gant_chart_lines_max)) {
+    free_pqueue(pq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in ps algorithm\n");
+    return 0;
+  }
+
+  if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
+                         &gant_chart_time_max)) {
+    free_pqueue(pq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in ps algorithm\n");
+    return 0;
+  }
+
+  double wt_avg = (double)wt_sum / procs_len;
+  double rt_avg = (double)rt_sum / procs_len;
+  double tt_avg = (double)tt_sum / procs_len;
+
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"ps", gant_chart_procs, gant_chart_lines,
+                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
+                      ctx_time, ctx_switch_count, time)) {
+    free_pqueue(pq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: couldn't set the algorithm info in ps algorithm\n");
+    return 0;
+  }
+
+  free_pqueue(pq);
+  free(proc_table);
+  free(gant_chart_lines);
+  free(gant_chart_procs);
+  free(gant_chart_time);
+
+  return 1;
 }
 
 int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
        int *output_info_len, int *output_info_max, int quant) {
-  return 0;
+  if (output_info == NULL || output_info_len == NULL ||
+      output_info_max == NULL) {
+    fprintf(stderr, "Error: the output info string is empty\n");
+    return 0;
+  }
+
+  int i = 0;
+  proc clone_procs[procs_len];
+
+  atqueue *atq = new_atqueue(procs_len, DESC);
+  if (atq == NULL) {
+    fprintf(stderr, "Error: cannot put processes into queue\n");
+    return 0;
+  }
+
+  queue *q = new_queue(procs_len);
+
+  if (q == NULL) {
+    free_atqueue(atq);
+    fprintf(stderr, "Error: cannot put processes into queue\n");
+    return 0;
+  }
+
+  for (int i = 0; i < procs_len; i++) {
+    if (!at_enqueue(atq, *(procs[i]))) {
+      free_queue(q);
+      free_atqueue(atq);
+      fprintf(stderr, "Error: cannot put processes into queue\n");
+      return 0;
+    }
+  }
+
+  int proc_table_max = ALGO_INFO_SECTION_SIZE;
+  int proc_table_len = 0;
+  char *proc_table = (char *)malloc(sizeof(char) * proc_table_max);
+
+  if (proc_table == NULL) {
+    free_queue(q);
+    free_atqueue(atq);
+    fprintf(stderr, "Error: cannot create the gant chart for rr algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_procs_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_procs_len = 0;
+  char *gant_chart_procs = (char *)malloc(sizeof(char) * gant_chart_procs_max);
+
+  if (gant_chart_procs == NULL) {
+    free_queue(q);
+    free_atqueue(atq);
+    free(proc_table);
+    fprintf(stderr, "Error: cannot create the gant chart for rr algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_lines_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_lines_len = 0;
+  char *gant_chart_lines = (char *)malloc(sizeof(char) * gant_chart_lines_max);
+
+  if (gant_chart_lines == NULL) {
+    free_queue(q);
+    free_atqueue(atq);
+    free(proc_table);
+    free(gant_chart_procs);
+    fprintf(stderr, "Error: cannot create the gant chart for rr algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_time_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_time_len = 0;
+  char *gant_chart_time = (char *)malloc(sizeof(char) * gant_chart_time_max);
+
+  if (gant_chart_time == NULL) {
+    free_queue(q);
+    free_atqueue(atq);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_lines);
+    fprintf(stderr, "Error: cannot create the gant chart for rr algorithm\n");
+    return 0;
+  }
+
+  int time = 0;
+  int ctx_switch_count = 0;
+  int wt_sum = 0;
+  int rt_sum = 0;
+  int tt_sum = 0;
+
+  proc top;
+  proc prev;
+  prev.pid = -1;
+
+  while (i < procs_len) {
+    int arrived_immediately = 0;
+    int has_ctx_switch = 0;
+
+    if (atqueue_is_empty(atq) && queue_is_empty(q)) {
+      free_atqueue(atq);
+      free_queue(q);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in enqueuing\n");
+      return 0;
+    }
+
+    if (queue_is_empty(q)) {
+      if (!at_dequeue(atq, &top)) {
+        free_atqueue(atq);
+        free_queue(q);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in dequeuing\n");
+        return 0;
+      }
+
+      arrived_immediately = 1;
+
+      if (prev.pid != -1 && prev.pid != top.pid && top.at < time + ctx_time) {
+        has_ctx_switch = 1;
+      } else {
+        time = top.at;
+        has_ctx_switch = 0;
+      }
+
+      if (!enqueue(q, top)) {
+        free_atqueue(atq);
+        free_queue(q);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in enqueuing\n");
+        return 0;
+      }
+    }
+
+    proc top_bt;
+    if (!peek_queue(q, &top_bt)) {
+      free_atqueue(atq);
+      free_queue(q);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in peeking the queue\n");
+      return 0;
+    }
+
+    while (!atqueue_is_empty(atq)) {
+      if (!peek_atqueue(atq, &top)) {
+        free_atqueue(atq);
+        free_queue(q);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in peeking the queue\n");
+        return 0;
+      }
+
+      int current_time =
+          prev.pid != -1 && prev.pid != top.pid ? time + ctx_time : time;
+
+      if (top.at > current_time)
+        break;
+
+      if (!at_dequeue(atq, &top)) {
+        free_atqueue(atq);
+        free_queue(q);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in dequeuing\n");
+        return 0;
+      }
+
+      if (!enqueue(q, top)) {
+        free_atqueue(atq);
+        free_queue(q);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in enqueuing\n");
+        return 0;
+      }
+    }
+
+    if (queue_is_empty(q)) {
+      free_atqueue(atq);
+      free_queue(q);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in enqueuing\n");
+      return 0;
+    }
+
+    if (!dequeue(q, &top)) {
+      free_atqueue(atq);
+      free_queue(q);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(proc_table);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in dequeuing\n");
+      return 0;
+    }
+
+    int proc_is_switched = prev.pid != -1 && prev.pid != top.pid;
+
+    int bt_remaining = top.bt - top.sbt;
+    int bt_increment = quant;
+    int updated_bt_remaining = bt_remaining - bt_increment;
+    int is_finished_before_quant = 0;
+
+    if (updated_bt_remaining <= 0) {
+      bt_increment = bt_remaining;
+      updated_bt_remaining = bt_remaining - bt_increment;
+      is_finished_before_quant = 1;
+    }
+
+    int is_finished = is_finished_before_quant || bt_remaining <= 0;
+
+    int wt;
+    int tt;
+    int rt = top.rt;
+
+    if (prev.pid == -1) {
+      wt = 0;
+    } else {
+      if (arrived_immediately) {
+        if (has_ctx_switch) {
+          wt = top.wt != -1 ? top.wt + time + ctx_time - top.at
+                            : time + ctx_time - top.at;
+        } else {
+          wt = top.wt != -1 ? top.wt : 0;
+        }
+      } else {
+        wt = (time - top.at) - top.sbt;
+
+        if (proc_is_switched) {
+          wt += ctx_time;
+        }
+      }
+    }
+
+    if (top.rt == -1) {
+      rt = wt;
+    }
+
+    tt = wt + top.sbt + bt_increment;
+
+    if (!increment_sbt(&top, bt_increment) || !add_proc_wt(&top, wt) ||
+        !add_proc_rt(&top, rt) || !add_proc_tt(&top, tt)) {
+      free_queue(q);
+      free(proc_table);
+      free(gant_chart_lines);
+      free(gant_chart_procs);
+      free(gant_chart_time);
+      fprintf(stderr, "Error: something went wrong in adding stats into "
+                      "processes\n");
+      return 0;
+    }
+
+    if ((arrived_immediately && has_ctx_switch) ||
+        (!arrived_immediately && proc_is_switched)) {
+      if (!draw_gant(
+              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
+              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
+              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
+              time, ctx_time, GANT_LINE_COUNT)) {
+        free_atqueue(atq);
+        free(proc_table);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(gant_chart_time);
+        fprintf(stderr,
+                "Error: something went wrong in printing the gant chart "
+                "in rr algorithm\n");
+        return 0;
+      }
+
+      ctx_switch_count++;
+      time += ctx_time;
+    }
+
+    if (!is_finished || is_finished_before_quant) {
+      if (!draw_gant(
+              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
+              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
+              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
+              top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+        free_atqueue(atq);
+        free(proc_table);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(gant_chart_time);
+        fprintf(stderr,
+                "Error: something went wrong in printing the gant chart "
+                "in rr algorithm\n");
+        return 0;
+      }
+    }
+
+    time += bt_increment;
+
+    if (is_finished) {
+      wt_sum += wt;
+      tt_sum += tt;
+      rt_sum += rt;
+
+      clone_procs[i++] = top;
+    } else {
+      if (!enqueue(q, top)) {
+        free_atqueue(atq);
+        free_queue(q);
+        free(gant_chart_lines);
+        free(gant_chart_procs);
+        free(proc_table);
+        free(gant_chart_time);
+        fprintf(stderr, "Error: something went wrong in dequeuing\n");
+        return 0;
+      }
+    }
+
+    prev = top;
+  }
+
+  if (!draw_proc_table(&proc_table, &proc_table_len, &proc_table_max,
+                       clone_procs, procs_len)) {
+    free_queue(q);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: couldn't set the process table in rr algorithm\n");
+    return 0;
+  }
+
+  if (!append_char_to_str('|', &gant_chart_lines, &gant_chart_lines_len,
+                          &gant_chart_lines_max)) {
+    free_queue(q);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in rr algorithm\n");
+    return 0;
+  }
+
+  if (!append_num_to_str(time, &gant_chart_time, &gant_chart_time_len,
+                         &gant_chart_time_max)) {
+    free_queue(q);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in rr algorithm\n");
+    return 0;
+  }
+
+  double wt_avg = (double)wt_sum / procs_len;
+  double rt_avg = (double)rt_sum / procs_len;
+  double tt_avg = (double)tt_sum / procs_len;
+
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"rr", gant_chart_procs, gant_chart_lines,
+                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
+                      ctx_time, ctx_switch_count, time)) {
+    free_queue(q);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: couldn't set the algorithm info in rr algorithm\n");
+    return 0;
+  }
+
+  free_queue(q);
+  free(proc_table);
+  free(gant_chart_lines);
+  free(gant_chart_procs);
+  free(gant_chart_time);
+
+  return 1;
 }
 
 int draw_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
