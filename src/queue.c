@@ -531,13 +531,13 @@ void heapify_down_atqueue(atqueue *q, int index) {
   } else {
     if (left <= q->rear && (q->items[left].at < q->items[largest].at ||
                             (q->items[left].at == q->items[largest].at &&
-                             q->items[left].pri > q->items[largest].pri))) {
+                             q->items[left].pri < q->items[largest].pri))) {
       largest = left;
     }
 
     if (right <= q->rear && (q->items[right].at < q->items[largest].at ||
                              (q->items[right].at == q->items[largest].at &&
-                              q->items[right].pri > q->items[largest].pri))) {
+                              q->items[right].pri < q->items[largest].pri))) {
       largest = right;
     }
   }
@@ -576,14 +576,14 @@ void heapify_down_btqueue(btqueue *q, int index) {
   } else {
     if (left <= q->rear && (left_bt_remaining < largest_bt_remaining ||
                             (left_bt_remaining == largest_bt_remaining &&
-                             q->items[left].pri > q->items[largest].pri))) {
+                             q->items[left].pri < q->items[largest].pri))) {
       largest = left;
       largest_bt_remaining = q->items[largest].bt - q->items[largest].sbt;
     }
 
     if (right <= q->rear && (right_bt_remaining < largest_bt_remaining ||
                              (right_bt_remaining == largest_bt_remaining &&
-                              q->items[right].pri > q->items[largest].pri))) {
+                              q->items[right].pri < q->items[largest].pri))) {
       largest = right;
     }
   }
@@ -614,13 +614,13 @@ void heapify_down_pqueue(pqueue *q, int index) {
   } else {
     if (left <= q->rear && (q->items[left].pri > q->items[largest].pri ||
                             (q->items[left].pri == q->items[largest].pri &&
-                             q->items[left].at > q->items[largest].at))) {
+                             q->items[left].at < q->items[largest].at))) {
       largest = left;
     }
 
     if (right <= q->rear && (q->items[right].pri > q->items[largest].pri ||
                              (q->items[right].pri == q->items[largest].pri &&
-                              q->items[right].at > q->items[largest].at))) {
+                              q->items[right].at < q->items[largest].at))) {
       largest = right;
     }
   }
@@ -663,7 +663,7 @@ void heapify_down_rrqueue(rrqueue *q, int index) {
         (left_rr < largest_rr ||
          (left_rr == largest_rr && q->items[left].at < q->items[largest].at) ||
          (left_rr == largest_rr && q->items[left].at == q->items[largest].at &&
-          q->items[left].pri > q->items[largest].pri))) {
+          q->items[left].pri < q->items[largest].pri))) {
       largest = left;
       largest_rr = q->items[largest].wt / q->items[largest].bt;
     }
@@ -673,7 +673,7 @@ void heapify_down_rrqueue(rrqueue *q, int index) {
                               q->items[right].at < q->items[largest].at) ||
                              (right_rr == largest_rr &&
                               q->items[right].at == q->items[largest].at &&
-                              q->items[right].pri > q->items[largest].pri))) {
+                              q->items[right].pri < q->items[largest].pri))) {
       largest = right;
     }
   }
@@ -704,7 +704,7 @@ void heapify_up_atqueue(atqueue *q, int index) {
   } else {
     if ((q->items[index].at < q->items[parent].at ||
          (q->items[index].at == q->items[parent].at &&
-          q->items[index].pri > q->items[parent].pri))) {
+          q->items[index].pri < q->items[parent].pri))) {
       swap = 1;
     }
   }
@@ -739,7 +739,7 @@ void heapify_up_btqueue(btqueue *q, int index) {
   } else {
     if ((index_bt_remaining < parent_bt_remaining ||
          (index_bt_remaining == parent_bt_remaining &&
-          q->items[index].pri > q->items[parent].pri))) {
+          q->items[index].pri < q->items[parent].pri))) {
       swap = 1;
     }
   }
@@ -765,7 +765,7 @@ void heapify_up_pqueue(pqueue *q, int index) {
   if (q->order == ASC) {
     if ((q->items[index].pri < q->items[parent].pri ||
          (q->items[index].pri == q->items[parent].pri &&
-          q->items[index].at > q->items[parent].at))) {
+          q->items[index].at < q->items[parent].at))) {
       swap = 1;
     }
   } else {
@@ -808,7 +808,7 @@ void heapify_up_rrqueue(rrqueue *q, int index) {
     if ((index_rr < parent_rr ||
          (index_rr == parent_rr && q->items[index].at < q->items[parent].at) ||
          (index_rr == parent_rr && q->items[index].at == q->items[parent].at &&
-          q->items[index].pri > q->items[parent].pri))) {
+          q->items[index].pri < q->items[parent].pri))) {
       swap = 1;
     }
   }
