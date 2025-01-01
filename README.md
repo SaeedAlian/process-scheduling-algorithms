@@ -67,6 +67,12 @@ To run the program, use the following command:
 ./bin/psa -a <algorithms> -q <quantum> -c <context_switch_time> -i <input_file> -o <output_directory>
 ```
 
+or you can use the random processes input:
+
+```bash
+./bin/psa -a <algorithms> -q <quantum> -c <context_switch_time> -o <output_directory> -r
+```
+
 #### Example:
 
 ```bash
