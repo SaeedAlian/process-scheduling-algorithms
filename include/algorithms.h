@@ -16,12 +16,18 @@
 typedef int (*non_preemptive_algo_func)(proc *procs[MAX_PROC], int procs_len,
                                         int ctx_time, char **output_info,
                                         int *output_info_len,
-                                        int *output_info_max);
+                                        int *output_info_max,
+                                        double *wt_avg_res, double *rt_avg_res,
+                                        double *tt_avg_res, int *totaltime_res,
+                                        int *ctx_switch_count_res);
 
 typedef int (*preemptive_algo_func)(proc *procs[MAX_PROC], int procs_len,
                                     int ctx_time, char **output_info,
                                     int *output_info_len, int *output_info_max,
-                                    int quant);
+                                    int quant, double *wt_avg_res,
+                                    double *rt_avg_res, double *tt_avg_res,
+                                    int *totaltime_res,
+                                    int *ctx_switch_count_res);
 
 int draw_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
                    char *algo_name, char *gant_chart, char *proc_table,
@@ -71,28 +77,50 @@ int draw_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
               int max_line_char);
 
 int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max);
+         int *output_info_len, int *output_info_max, double *wt_avg_res,
+         double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+         int *ctx_switch_count_res);
 int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-       int *output_info_len, int *output_info_max, int quant);
+       int *output_info_len, int *output_info_max, int quant,
+       double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+       int *totaltime_res, int *ctx_switch_count_res);
 int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-        int *output_info_len, int *output_info_max);
+        int *output_info_len, int *output_info_max, double *wt_avg_res,
+        double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+        int *ctx_switch_count_res);
 int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-        int *output_info_len, int *output_info_max);
+        int *output_info_len, int *output_info_max, double *wt_avg_res,
+        double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+        int *ctx_switch_count_res);
 int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max, int quant);
+         int *output_info_len, int *output_info_max, int quant,
+         double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+         int *totaltime_res, int *ctx_switch_count_res);
 int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max, int quant);
+         int *output_info_len, int *output_info_max, int quant,
+         double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+         int *totaltime_res, int *ctx_switch_count_res);
 int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-       int *output_info_len, int *output_info_max, int quant);
+       int *output_info_len, int *output_info_max, int quant,
+       double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+       int *totaltime_res, int *ctx_switch_count_res);
 int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max);
+         int *output_info_len, int *output_info_max, double *wt_avg_res,
+         double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+         int *ctx_switch_count_res);
 
 int run_non_preemptive_algo(const char *algo_name, char *dirname,
                             non_preemptive_algo_func func,
-                            proc *procs[MAX_PROC], int procs_len, int ctx_time);
+                            proc *procs[MAX_PROC], int procs_len, int ctx_time,
+                            double *wt_avg_res, double *rt_avg_res,
+                            double *tt_avg_res, int *totaltime_res,
+                            int *ctx_switch_count_res);
 
 int run_preemptive_algo(const char *algo_name, char *dirname,
                         preemptive_algo_func func, proc *procs[MAX_PROC],
-                        int procs_len, int ctx_time, int quant);
+                        int procs_len, int ctx_time, int quant,
+                        double *wt_avg_res, double *rt_avg_res,
+                        double *tt_avg_res, int *totaltime_res,
+                        int *ctx_switch_count_res);
 
 #endif

@@ -2,13 +2,16 @@
 
 int run_non_preemptive_algo(const char *algo_name, char *dirname,
                             non_preemptive_algo_func func,
-                            proc *procs[MAX_PROC], int procs_len,
-                            int ctx_time) {
+                            proc *procs[MAX_PROC], int procs_len, int ctx_time,
+                            double *wt_avg_res, double *rt_avg_res,
+                            double *tt_avg_res, int *totaltime_res,
+                            int *ctx_switch_count_res) {
   int info_max = MAX_ALGO_INFO_FILESIZE;
   char *info = (char *)malloc(sizeof(char) * info_max);
   int info_len = 0;
 
-  if (!func(procs, procs_len, ctx_time, &info, &info_len, &info_max)) {
+  if (!func(procs, procs_len, ctx_time, &info, &info_len, &info_max, wt_avg_res,
+            rt_avg_res, tt_avg_res, totaltime_res, ctx_switch_count_res)) {
     free(info);
     fprintf(stderr, "Error: something went wrong in running %s algorithm\n",
             algo_name);
@@ -20,7 +23,7 @@ int run_non_preemptive_algo(const char *algo_name, char *dirname,
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
-    return 1;
+    return 0;
   }
 
   FILE *file = create_file(filename);
@@ -28,7 +31,7 @@ int run_non_preemptive_algo(const char *algo_name, char *dirname,
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
-    return 1;
+    return 0;
   }
 
   if (!append_str_to_file(file, info, info_len)) {
@@ -36,7 +39,7 @@ int run_non_preemptive_algo(const char *algo_name, char *dirname,
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
-    return 1;
+    return 0;
   }
 
   printf("%i --- %s Printed Successfully \n", info_len, algo_name);
@@ -48,12 +51,17 @@ int run_non_preemptive_algo(const char *algo_name, char *dirname,
 
 int run_preemptive_algo(const char *algo_name, char *dirname,
                         preemptive_algo_func func, proc *procs[MAX_PROC],
-                        int procs_len, int ctx_time, int quant) {
+                        int procs_len, int ctx_time, int quant,
+                        double *wt_avg_res, double *rt_avg_res,
+                        double *tt_avg_res, int *totaltime_res,
+                        int *ctx_switch_count_res) {
   int info_max = MAX_ALGO_INFO_FILESIZE;
   char *info = (char *)malloc(sizeof(char) * info_max);
   int info_len = 0;
 
-  if (!func(procs, procs_len, ctx_time, &info, &info_len, &info_max, quant)) {
+  if (!func(procs, procs_len, ctx_time, &info, &info_len, &info_max, quant,
+            wt_avg_res, rt_avg_res, tt_avg_res, totaltime_res,
+            ctx_switch_count_res)) {
     free(info);
     fprintf(stderr, "Error: something went wrong in running %s algorithm\n",
             algo_name);
@@ -65,7 +73,7 @@ int run_preemptive_algo(const char *algo_name, char *dirname,
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
-    return 1;
+    return 0;
   }
 
   FILE *file = create_file(filename);
@@ -73,7 +81,7 @@ int run_preemptive_algo(const char *algo_name, char *dirname,
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
-    return 1;
+    return 0;
   }
 
   if (!append_str_to_file(file, info, info_len)) {
@@ -81,7 +89,7 @@ int run_preemptive_algo(const char *algo_name, char *dirname,
     free(info);
     fprintf(stderr,
             "Error: something went wrong in creating the output file\n");
-    return 1;
+    return 0;
   }
 
   printf("%i --- %s Printed Successfully \n", info_len, algo_name);
@@ -92,7 +100,9 @@ int run_preemptive_algo(const char *algo_name, char *dirname,
 }
 
 int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max) {
+         int *output_info_len, int *output_info_max, double *wt_avg_res,
+         double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+         int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -343,11 +353,19 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(proc_table);
   free(gant_chart);
 
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
+
   return 1;
 }
 
 int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-        int *output_info_len, int *output_info_max) {
+        int *output_info_len, int *output_info_max, double *wt_avg_res,
+        double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+        int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -702,11 +720,19 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(proc_table);
   free(gant_chart);
 
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
+
   return 1;
 }
 
 int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-        int *output_info_len, int *output_info_max) {
+        int *output_info_len, int *output_info_max, double *wt_avg_res,
+        double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+        int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -1061,11 +1087,19 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(proc_table);
   free(gant_chart);
 
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
+
   return 1;
 }
 
 int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max, int quant) {
+         int *output_info_len, int *output_info_max, int quant,
+         double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+         int *totaltime_res, int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -1497,11 +1531,19 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(proc_table);
   free(gant_chart);
 
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
+
   return 1;
 }
 
 int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max, int quant) {
+         int *output_info_len, int *output_info_max, int quant,
+         double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+         int *totaltime_res, int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -1933,11 +1975,19 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(proc_table);
   free(gant_chart);
 
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
+
   return 1;
 }
 
 int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-         int *output_info_len, int *output_info_max) {
+         int *output_info_len, int *output_info_max, double *wt_avg_res,
+         double *rt_avg_res, double *tt_avg_res, int *totaltime_res,
+         int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -2310,11 +2360,19 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(proc_table);
   free(gant_chart);
 
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
+
   return 1;
 }
 
 int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-       int *output_info_len, int *output_info_max, int quant) {
+       int *output_info_len, int *output_info_max, int quant,
+       double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+       int *totaltime_res, int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -2744,11 +2802,19 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free(proc_table);
   free(gant_chart);
 
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
+
   return 1;
 }
 
 int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
-       int *output_info_len, int *output_info_max, int quant) {
+       int *output_info_len, int *output_info_max, int quant,
+       double *wt_avg_res, double *rt_avg_res, double *tt_avg_res,
+       int *totaltime_res, int *ctx_switch_count_res) {
   if (output_info == NULL || output_info_len == NULL ||
       output_info_max == NULL) {
     fprintf(stderr, "Error: the output info string is empty\n");
@@ -3177,6 +3243,12 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_atqueue(atq);
   free(proc_table);
   free(gant_chart);
+
+  *wt_avg_res = wt_avg;
+  *rt_avg_res = rt_avg;
+  *tt_avg_res = tt_avg;
+  *totaltime_res = time;
+  *ctx_switch_count_res = ctx_switch_count;
 
   return 1;
 }
