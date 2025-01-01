@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define GANT_LINE_COUNT 5
-#define GANT_LINE_MAX_CHAR 160
+#define GANT_LINE_MAX_CHAR 140
 #define ALGO_INFO_SECTION_SIZE 2048
 #define MAX_ALGO_INFO_FILESIZE 2048 * 6
 
@@ -49,7 +49,7 @@ int line_break_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
                     int *procs_section_max, char **lines_section,
                     int *lines_section_len, int *lines_section_max,
                     char **time_section, int *time_section_len,
-                    int *time_section_max);
+                    int *time_section_max, int max_line_char);
 
 int draw_gant_proc(char **procs_section, int *procs_section_len,
                    int *procs_section_max, int pid, int burst, int line_count);

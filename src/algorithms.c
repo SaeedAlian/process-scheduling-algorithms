@@ -3566,28 +3566,6 @@ int draw_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
   if (burst == 0)
     return 1;
 
-  int updated_procs_section_len =
-      (*procs_section_len) + (burst * line_count) + 1;
-  int updated_lines_section_len =
-      (*lines_section_len) + (burst * line_count) + 1;
-  int updated_time_section_len = (*time_section_len) + (burst * line_count) + 1;
-
-  int max_len = updated_procs_section_len;
-  if (updated_lines_section_len > max_len)
-    max_len = updated_lines_section_len;
-
-  if (updated_time_section_len > max_len)
-    max_len = updated_time_section_len;
-
-  if (max_len > max_line_char) {
-    if (!line_break_gant(gant_chart, gant_chart_len, gant_chart_max,
-                         procs_section, procs_section_len, procs_section_max,
-                         lines_section, lines_section_len, lines_section_max,
-                         time_section, time_section_len, time_section_max)) {
-      return 0;
-    }
-  }
-
   if (!draw_gant_proc(procs_section, procs_section_len, procs_section_max, pid,
                       burst, line_count))
     return 0;
@@ -3599,6 +3577,14 @@ int draw_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
   if (!draw_gant_time(time_section, time_section_len, time_section_max,
                       current_time, burst, line_count))
     return 0;
+
+  if (!line_break_gant(gant_chart, gant_chart_len, gant_chart_max,
+                       procs_section, procs_section_len, procs_section_max,
+                       lines_section, lines_section_len, lines_section_max,
+                       time_section, time_section_len, time_section_max,
+                       max_line_char)) {
+    return 0;
+  }
 
   return 1;
 }
@@ -3698,7 +3684,48 @@ int line_break_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
                     int *procs_section_max, char **lines_section,
                     int *lines_section_len, int *lines_section_max,
                     char **time_section, int *time_section_len,
-                    int *time_section_max) {
+                    int *time_section_max, int max_line_char) {
+  if ((*procs_section_len) < max_line_char &&
+      (*lines_section_len) < max_line_char &&
+      (*time_section_len) < max_line_char) {
+    return 1;
+  }
+
+  for (int i = 0; i < max_line_char; i++) {
+    if (!append_char_to_str((*procs_section)[i], gant_chart, gant_chart_len,
+                            gant_chart_max)) {
+      return 0;
+    }
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    return 0;
+  }
+
+  for (int i = 0; i < max_line_char; i++) {
+    if (!append_char_to_str((*lines_section)[i], gant_chart, gant_chart_len,
+                            gant_chart_max)) {
+      return 0;
+    }
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    return 0;
+  }
+
+  for (int i = 0; i < max_line_char; i++) {
+    if (!append_char_to_str((*time_section)[i], gant_chart, gant_chart_len,
+                            gant_chart_max)) {
+      return 0;
+    }
+  }
+
+  if (!append_str_to_str("\n\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    return 0;
+  }
+
+  (*gant_chart)[(*gant_chart_len)] = '\0';
+
   int new_gant_chart_procs_max = ALGO_INFO_SECTION_SIZE;
   int new_gant_chart_procs_len = 0;
   char *new_gant_chart_procs =
@@ -3729,63 +3756,46 @@ int line_break_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
     return 0;
   }
 
-  if (!append_str_to_str(*procs_section, gant_chart, gant_chart_len,
-                         gant_chart_max)) {
-    free(new_gant_chart_procs);
-    free(new_gant_chart_lines);
-    free(new_gant_chart_time);
-    return 0;
+  for (int i = max_line_char; i < (*procs_section_len); i++) {
+    if (!append_char_to_str((*procs_section)[i], &new_gant_chart_procs,
+                            &new_gant_chart_procs_len,
+                            &new_gant_chart_procs_max)) {
+      free(new_gant_chart_procs);
+      free(new_gant_chart_lines);
+      free(new_gant_chart_time);
+      return 0;
+    }
   }
 
-  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
-    free(new_gant_chart_procs);
-    free(new_gant_chart_lines);
-    free(new_gant_chart_time);
-    return 0;
+  for (int i = max_line_char; i < (*lines_section_len); i++) {
+    if (!append_char_to_str((*lines_section)[i], &new_gant_chart_lines,
+                            &new_gant_chart_lines_len,
+                            &new_gant_chart_lines_max)) {
+      free(new_gant_chart_procs);
+      free(new_gant_chart_lines);
+      free(new_gant_chart_time);
+      return 0;
+    }
   }
 
-  if (!append_str_to_str(*lines_section, gant_chart, gant_chart_len,
-                         gant_chart_max)) {
-    free(new_gant_chart_procs);
-    free(new_gant_chart_lines);
-    free(new_gant_chart_time);
-    return 0;
+  for (int i = max_line_char; i < (*time_section_len); i++) {
+    if (!append_char_to_str((*time_section)[i], &new_gant_chart_time,
+                            &new_gant_chart_time_len,
+                            &new_gant_chart_time_max)) {
+      free(new_gant_chart_procs);
+      free(new_gant_chart_lines);
+      free(new_gant_chart_time);
+      return 0;
+    }
   }
-
-  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
-    free(new_gant_chart_procs);
-    free(new_gant_chart_lines);
-    free(new_gant_chart_time);
-    return 0;
-  }
-
-  if (!append_str_to_str(*time_section, gant_chart, gant_chart_len,
-                         gant_chart_max)) {
-    free(new_gant_chart_procs);
-    free(new_gant_chart_lines);
-    free(new_gant_chart_time);
-    return 0;
-  }
-
-  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
-    free(new_gant_chart_procs);
-    free(new_gant_chart_lines);
-    free(new_gant_chart_time);
-    return 0;
-  }
-
-  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
-    free(new_gant_chart_procs);
-    free(new_gant_chart_lines);
-    free(new_gant_chart_time);
-    return 0;
-  }
-
-  (*gant_chart)[(*gant_chart_len)] = '\0';
 
   free(*procs_section);
   free(*lines_section);
   free(*time_section);
+
+  new_gant_chart_procs[new_gant_chart_procs_len] = '\0';
+  new_gant_chart_lines[new_gant_chart_lines_len] = '\0';
+  new_gant_chart_time[new_gant_chart_time_len] = '\0';
 
   *procs_section = new_gant_chart_procs;
   *procs_section_len = new_gant_chart_procs_len;
@@ -3872,6 +3882,7 @@ int append_char_to_str(char c, char **str, int *len, int *max) {
   }
 
   (*str)[(*len)++] = c;
+  (*str)[(*len)] = '\0';
   return 1;
 }
 
