@@ -95,13 +95,15 @@ int parse_arguments(int argc, char *argv[], arguments *args) {
       args->fill_random = 1;
       break;
     case 'h':
-      // TODO UPDATE HELP
       printf("Usage: %s [OPTIONS]\n", argv[0]);
       printf("Options:\n");
       printf("  -a, --algorithms <algorithms>  Comma-separated list of "
              "algorithms (fcfs, ps, srjf, lrjf, sjf, ljf, hrrn, rr)\n");
-      printf("  -ct, --ctx-time <ctx_time>    Context switch time (float "
+      printf("  -c, --ctx-time <ctx_time>    Context switch time (integer "
              "between 0 and 5)\n");
+      printf("  -q, --quant <quantum_time>    Quantum time (integer "
+             "between 1 and 5)\n");
+      printf("  -i, --input <input_file>     input file name\n");
       printf("  -o, --output <output>        Output file name\n");
       printf("  -r, --random                 Set all process stats randomly\n");
       printf("  -h, --help                   Show this help message\n");
