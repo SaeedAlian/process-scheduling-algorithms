@@ -163,6 +163,20 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
+    return 0;
+  }
+
   int time = 0;
   int ctx_switch_count = 0;
   int wt_sum = 0;
@@ -214,11 +228,12 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       return 0;
     }
 
-    if (!draw_gant(&gant_chart_procs, &gant_chart_procs_len,
-                   &gant_chart_procs_max, &gant_chart_lines,
-                   &gant_chart_lines_len, &gant_chart_lines_max,
-                   &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-                   top.pid, time, top.bt, GANT_LINE_COUNT)) {
+    if (!draw_gant(
+            &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+            &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+            &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+            &gant_chart_time_len, &gant_chart_time_max, top.pid, time, top.bt,
+            GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
       free_atqueue(atq);
       free(proc_table);
       free(gant_chart_lines);
@@ -231,10 +246,11 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (i != procs_len - 1) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time + top.bt, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time + top.bt,
+              ctx_time, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free(proc_table);
         free(gant_chart_lines);
@@ -295,10 +311,24 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
+    free_atqueue(atq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in fcfs algorithm\n");
+    return 0;
+  }
+
   if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"FCFS", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
+                      (char *)"FCFS", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
     free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
@@ -311,9 +341,7 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
   free_atqueue(atq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
@@ -402,6 +430,21 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_btqueue(btq);
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
+    return 0;
+  }
+
   int time = 0;
   int ctx_switch_count = 0;
   int wt_sum = 0;
@@ -539,11 +582,12 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       return 0;
     }
 
-    if (!draw_gant(&gant_chart_procs, &gant_chart_procs_len,
-                   &gant_chart_procs_max, &gant_chart_lines,
-                   &gant_chart_lines_len, &gant_chart_lines_max,
-                   &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-                   top.pid, time, top.bt, GANT_LINE_COUNT)) {
+    if (!draw_gant(
+            &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+            &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+            &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+            &gant_chart_time_len, &gant_chart_time_max, top.pid, time, top.bt,
+            GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
       free_atqueue(atq);
       free_btqueue(btq);
       free(proc_table);
@@ -557,10 +601,11 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (i != procs_len - 1) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time + top.bt, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time + top.bt,
+              ctx_time, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free_btqueue(btq);
         free(proc_table);
@@ -624,12 +669,25 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"SJF", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
     free_atqueue(atq);
-    free_btqueue(btq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in sjf algorithm\n");
+    return 0;
+  }
+
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"SJF", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -642,9 +700,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
@@ -733,6 +789,21 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_btqueue(btq);
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
+    return 0;
+  }
+
   int time = 0;
   int ctx_switch_count = 0;
   int wt_sum = 0;
@@ -870,11 +941,12 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       return 0;
     }
 
-    if (!draw_gant(&gant_chart_procs, &gant_chart_procs_len,
-                   &gant_chart_procs_max, &gant_chart_lines,
-                   &gant_chart_lines_len, &gant_chart_lines_max,
-                   &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-                   top.pid, time, top.bt, GANT_LINE_COUNT)) {
+    if (!draw_gant(
+            &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+            &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+            &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+            &gant_chart_time_len, &gant_chart_time_max, top.pid, time, top.bt,
+            GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
       free_atqueue(atq);
       free_btqueue(btq);
       free(proc_table);
@@ -888,10 +960,11 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (i != procs_len - 1) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time + top.bt, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time + top.bt,
+              ctx_time, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free_btqueue(btq);
         free(proc_table);
@@ -955,12 +1028,25 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"LJF", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
     free_atqueue(atq);
-    free_btqueue(btq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in ljf algorithm\n");
+    return 0;
+  }
+
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"LJF", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -973,9 +1059,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
@@ -1064,6 +1148,21 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_btqueue(btq);
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
+    return 0;
+  }
+
   int time = 0;
   int ctx_switch_count = 0;
   int wt_sum = 0;
@@ -1257,10 +1356,11 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     if ((arrived_immediately && has_ctx_switch) ||
         (!arrived_immediately && proc_is_switched)) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time, ctx_time,
+              GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free_btqueue(btq);
         free(proc_table);
@@ -1279,10 +1379,11 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!is_finished || is_finished_before_quant) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-              top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, top.pid, time,
+              bt_increment, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free_btqueue(btq);
         free(proc_table);
@@ -1363,12 +1464,25 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"SRJF", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
     free_atqueue(atq);
-    free_btqueue(btq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in srjf algorithm\n");
+    return 0;
+  }
+
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"SRJF", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -1381,9 +1495,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
@@ -1472,6 +1584,21 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     return 0;
   }
 
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_btqueue(btq);
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
+    return 0;
+  }
+
   int time = 0;
   int ctx_switch_count = 0;
   int wt_sum = 0;
@@ -1665,10 +1792,11 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     if ((arrived_immediately && has_ctx_switch) ||
         (!arrived_immediately && proc_is_switched)) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time, ctx_time,
+              GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free_btqueue(btq);
         free(proc_table);
@@ -1687,10 +1815,11 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!is_finished || is_finished_before_quant) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-              top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, top.pid, time,
+              bt_increment, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free_btqueue(btq);
         free(proc_table);
@@ -1771,12 +1900,25 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"LRJF", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
     free_atqueue(atq);
-    free_btqueue(btq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in lrjf algorithm\n");
+    return 0;
+  }
+
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"LRJF", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -1789,9 +1931,7 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_atqueue(atq);
   free_btqueue(btq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
@@ -1878,6 +2018,21 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     free(proc_table);
     free(gant_chart_lines);
     fprintf(stderr, "Error: cannot create the gant chart for hrrn algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_rrqueue(rrq);
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
     return 0;
   }
 
@@ -1982,11 +2137,12 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       return 0;
     }
 
-    if (!draw_gant(&gant_chart_procs, &gant_chart_procs_len,
-                   &gant_chart_procs_max, &gant_chart_lines,
-                   &gant_chart_lines_len, &gant_chart_lines_max,
-                   &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-                   top.pid, time, top.bt, GANT_LINE_COUNT)) {
+    if (!draw_gant(
+            &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+            &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+            &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+            &gant_chart_time_len, &gant_chart_time_max, top.pid, time, top.bt,
+            GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
       free_atqueue(atq);
       free_rrqueue(rrq);
       free(proc_table);
@@ -2000,10 +2156,11 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (i != procs_len - 1) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time + top.bt, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time + top.bt,
+              ctx_time, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_atqueue(atq);
         free_rrqueue(rrq);
         free(proc_table);
@@ -2120,12 +2277,25 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
-  if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"hrrn", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
     free_atqueue(atq);
-    free_rrqueue(rrq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in hrrn algorithm\n");
+    return 0;
+  }
+
+  if (!draw_algo_info(output_info, output_info_len, output_info_max,
+                      (char *)"HRRN", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
+    free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
     free(gant_chart_procs);
@@ -2138,9 +2308,7 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_atqueue(atq);
   free_rrqueue(rrq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
@@ -2226,6 +2394,21 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     free(proc_table);
     free(gant_chart_lines);
     fprintf(stderr, "Error: cannot create the gant chart for ps algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_pqueue(pq);
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
     return 0;
   }
 
@@ -2422,10 +2605,11 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     if ((arrived_immediately && has_ctx_switch) ||
         (!arrived_immediately && proc_is_switched)) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time, ctx_time,
+              GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_pqueue(pq);
         free_atqueue(atq);
         free(proc_table);
@@ -2444,10 +2628,11 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!is_finished || is_finished_before_quant) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-              top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, top.pid, time,
+              bt_increment, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_pqueue(pq);
         free_atqueue(atq);
         free(proc_table);
@@ -2527,11 +2712,24 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
+    free_atqueue(atq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in ps algorithm\n");
+    return 0;
+  }
+
   if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"ps", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
-    free_pqueue(pq);
+                      (char *)"PS", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
     free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
@@ -2544,9 +2742,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_pqueue(pq);
   free_atqueue(atq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
@@ -2632,6 +2828,21 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     free(proc_table);
     free(gant_chart_lines);
     fprintf(stderr, "Error: cannot create the gant chart for rr algorithm\n");
+    return 0;
+  }
+
+  int gant_chart_max = ALGO_INFO_SECTION_SIZE;
+  int gant_chart_len = 0;
+  char *gant_chart = (char *)malloc(sizeof(char) * gant_chart_max);
+
+  if (gant_chart == NULL) {
+    free_queue(q);
+    free_atqueue(atq);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(proc_table);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: cannot create the gant chart for fcfs algorithm\n");
     return 0;
   }
 
@@ -2828,10 +3039,11 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     if ((arrived_immediately && has_ctx_switch) ||
         (!arrived_immediately && proc_is_switched)) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max, -1,
-              time, ctx_time, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, -1, time, ctx_time,
+              GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_queue(q);
         free_atqueue(atq);
         free(proc_table);
@@ -2850,10 +3062,11 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if (!is_finished || is_finished_before_quant) {
       if (!draw_gant(
-              &gant_chart_procs, &gant_chart_procs_len, &gant_chart_procs_max,
-              &gant_chart_lines, &gant_chart_lines_len, &gant_chart_lines_max,
-              &gant_chart_time, &gant_chart_time_len, &gant_chart_time_max,
-              top.pid, time, bt_increment, GANT_LINE_COUNT)) {
+              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+              &gant_chart_time_len, &gant_chart_time_max, top.pid, time,
+              bt_increment, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
         free_queue(q);
         free_atqueue(atq);
         free(proc_table);
@@ -2933,11 +3146,24 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   double rt_avg = (double)rt_sum / procs_len;
   double tt_avg = (double)tt_sum / procs_len;
 
+  if (!update_gant_chart(
+          &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
+          &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
+          &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
+          &gant_chart_time_len, &gant_chart_time_max)) {
+    free_atqueue(atq);
+    free(proc_table);
+    free(gant_chart_lines);
+    free(gant_chart_procs);
+    free(gant_chart_time);
+    fprintf(stderr, "Error: something went wrong in printing the gant chart "
+                    "in rr algorithm\n");
+    return 0;
+  }
+
   if (!draw_algo_info(output_info, output_info_len, output_info_max,
-                      (char *)"rr", gant_chart_procs, gant_chart_lines,
-                      gant_chart_time, proc_table, wt_avg, rt_avg, tt_avg,
-                      ctx_time, ctx_switch_count, time)) {
-    free_queue(q);
+                      (char *)"RR", gant_chart, proc_table, wt_avg, rt_avg,
+                      tt_avg, ctx_time, ctx_switch_count, time)) {
     free_atqueue(atq);
     free(proc_table);
     free(gant_chart_lines);
@@ -2950,19 +3176,15 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   free_queue(q);
   free_atqueue(atq);
   free(proc_table);
-  free(gant_chart_lines);
-  free(gant_chart_procs);
-  free(gant_chart_time);
+  free(gant_chart);
 
   return 1;
 }
 
 int draw_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
-                   char *algo_name, char *gant_chart_procs,
-                   char *gant_chart_lines, char *gant_chart_time,
-                   char *proc_table, double wt_avg, double rt_avg,
-                   double tt_avg, int ctx_time, int ctx_switch_count,
-                   int totaltime) {
+                   char *algo_name, char *gant_chart, char *proc_table,
+                   double wt_avg, double rt_avg, double tt_avg, int ctx_time,
+                   int ctx_switch_count, int totaltime) {
   if (!append_str_to_str((char *)"-->>", algo_info, algo_info_len,
                          algo_info_max)) {
     return 0;
@@ -2982,67 +3204,11 @@ int draw_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
     return 0;
   }
 
-  if (!append_str_to_str((char *)"PID\n", algo_info, algo_info_len,
-                         algo_info_max)) {
+  if (!append_str_to_str(gant_chart, algo_info, algo_info_len, algo_info_max)) {
     return 0;
   }
 
-  if (!append_str_to_str((char *)"|\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"▼\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str(gant_chart_procs, algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str(gant_chart_lines, algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str(gant_chart_time, algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"▲\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"|\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"TIME\n", algo_info, algo_info_len,
-                         algo_info_max)) {
-    return 0;
-  }
-
-  if (!append_str_to_str((char *)"\n", algo_info, algo_info_len,
+  if (!append_str_to_str((char *)"\n\n", algo_info, algo_info_len,
                          algo_info_max)) {
     return 0;
   }
@@ -3058,6 +3224,16 @@ int draw_algo_info(char **algo_info, int *algo_info_len, int *algo_info_max,
   }
 
   if (!append_str_to_str((char *)"*** : context switch is running\n", algo_info,
+                         algo_info_len, algo_info_max)) {
+    return 0;
+  }
+
+  if (!append_str_to_str((char *)"Top numbers : PID\n", algo_info,
+                         algo_info_len, algo_info_max)) {
+    return 0;
+  }
+
+  if (!append_str_to_str((char *)"Bottom numbers : TIME\n", algo_info,
                          algo_info_len, algo_info_max)) {
     return 0;
   }
@@ -3338,13 +3514,79 @@ int draw_proc_table(char **table, int *len, int *max, proc *procs,
   return 1;
 }
 
-int draw_gant(char **procs_section, int *procs_section_len,
+int update_gant_chart(char **gant_chart, int *gant_chart_len,
+                      int *gant_chart_max, char **procs_section,
+                      int *procs_section_len, int *procs_section_max,
+                      char **lines_section, int *lines_section_len,
+                      int *lines_section_max, char **time_section,
+                      int *time_section_len, int *time_section_max) {
+  if (!append_str_to_str(*procs_section, gant_chart, gant_chart_len,
+                         gant_chart_max)) {
+    return 0;
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    return 0;
+  }
+
+  if (!append_str_to_str(*lines_section, gant_chart, gant_chart_len,
+                         gant_chart_max)) {
+    return 0;
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    return 0;
+  }
+
+  if (!append_str_to_str(*time_section, gant_chart, gant_chart_len,
+                         gant_chart_max)) {
+    return 0;
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    return 0;
+  }
+
+  (*gant_chart)[(*gant_chart_len)] = '\0';
+
+  free(*procs_section);
+  free(*lines_section);
+  free(*time_section);
+
+  return 1;
+}
+
+int draw_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
+              char **procs_section, int *procs_section_len,
               int *procs_section_max, char **lines_section,
               int *lines_section_len, int *lines_section_max,
               char **time_section, int *time_section_len, int *time_section_max,
-              int pid, int current_time, int burst, int line_count) {
+              int pid, int current_time, int burst, int line_count,
+              int max_line_char) {
   if (burst == 0)
     return 1;
+
+  int updated_procs_section_len =
+      (*procs_section_len) + (burst * line_count) + 1;
+  int updated_lines_section_len =
+      (*lines_section_len) + (burst * line_count) + 1;
+  int updated_time_section_len = (*time_section_len) + (burst * line_count) + 1;
+
+  int max_len = updated_procs_section_len;
+  if (updated_lines_section_len > max_len)
+    max_len = updated_lines_section_len;
+
+  if (updated_time_section_len > max_len)
+    max_len = updated_time_section_len;
+
+  if (max_len > max_line_char) {
+    if (!line_break_gant(gant_chart, gant_chart_len, gant_chart_max,
+                         procs_section, procs_section_len, procs_section_max,
+                         lines_section, lines_section_len, lines_section_max,
+                         time_section, time_section_len, time_section_max)) {
+      return 0;
+    }
+  }
 
   if (!draw_gant_proc(procs_section, procs_section_len, procs_section_max, pid,
                       burst, line_count))
@@ -3447,6 +3689,115 @@ int draw_gant_time(char **time_section, int *time_section_len,
   }
 
   (*time_section)[(*time_section_len)] = '\0';
+
+  return 1;
+}
+
+int line_break_gant(char **gant_chart, int *gant_chart_len, int *gant_chart_max,
+                    char **procs_section, int *procs_section_len,
+                    int *procs_section_max, char **lines_section,
+                    int *lines_section_len, int *lines_section_max,
+                    char **time_section, int *time_section_len,
+                    int *time_section_max) {
+  int new_gant_chart_procs_max = ALGO_INFO_SECTION_SIZE;
+  int new_gant_chart_procs_len = 0;
+  char *new_gant_chart_procs =
+      (char *)malloc(sizeof(char) * new_gant_chart_procs_max);
+
+  if (new_gant_chart_procs == NULL) {
+    return 0;
+  }
+
+  int new_gant_chart_lines_max = ALGO_INFO_SECTION_SIZE;
+  int new_gant_chart_lines_len = 0;
+  char *new_gant_chart_lines =
+      (char *)malloc(sizeof(char) * new_gant_chart_lines_max);
+
+  if (new_gant_chart_lines == NULL) {
+    free(new_gant_chart_procs);
+    return 0;
+  }
+
+  int new_gant_chart_time_max = ALGO_INFO_SECTION_SIZE;
+  int new_gant_chart_time_len = 0;
+  char *new_gant_chart_time =
+      (char *)malloc(sizeof(char) * new_gant_chart_time_max);
+
+  if (new_gant_chart_time == NULL) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    return 0;
+  }
+
+  if (!append_str_to_str(*procs_section, gant_chart, gant_chart_len,
+                         gant_chart_max)) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    free(new_gant_chart_time);
+    return 0;
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    free(new_gant_chart_time);
+    return 0;
+  }
+
+  if (!append_str_to_str(*lines_section, gant_chart, gant_chart_len,
+                         gant_chart_max)) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    free(new_gant_chart_time);
+    return 0;
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    free(new_gant_chart_time);
+    return 0;
+  }
+
+  if (!append_str_to_str(*time_section, gant_chart, gant_chart_len,
+                         gant_chart_max)) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    free(new_gant_chart_time);
+    return 0;
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    free(new_gant_chart_time);
+    return 0;
+  }
+
+  if (!append_str_to_str("\n", gant_chart, gant_chart_len, gant_chart_max)) {
+    free(new_gant_chart_procs);
+    free(new_gant_chart_lines);
+    free(new_gant_chart_time);
+    return 0;
+  }
+
+  (*gant_chart)[(*gant_chart_len)] = '\0';
+
+  free(*procs_section);
+  free(*lines_section);
+  free(*time_section);
+
+  *procs_section = new_gant_chart_procs;
+  *procs_section_len = new_gant_chart_procs_len;
+  *procs_section_max = new_gant_chart_procs_max;
+
+  *lines_section = new_gant_chart_lines;
+  *lines_section_len = new_gant_chart_lines_len;
+  *lines_section_max = new_gant_chart_lines_max;
+
+  *time_section = new_gant_chart_time;
+  *time_section_len = new_gant_chart_time_len;
+  *time_section_max = new_gant_chart_time_max;
 
   return 1;
 }
