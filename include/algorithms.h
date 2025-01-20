@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define GANT_LINE_COUNT 5
-#define GANT_LINE_MAX_CHAR 140
+#define GANT_LINE_MAX_CHAR 160
 #define ALGO_INFO_SECTION_SIZE 2048
 #define MAX_ALGO_INFO_FILESIZE 2048 * 6
 
