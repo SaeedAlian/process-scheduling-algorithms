@@ -519,7 +519,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         return 0;
       }
 
-      if (top.at > time)
+      if (top.at > time - ctx_time)
         break;
 
       if (!at_dequeue(atq, &top)) {
@@ -886,7 +886,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         return 0;
       }
 
-      if (top.at > time)
+      if (top.at > time - ctx_time)
         break;
 
       if (!at_dequeue(atq, &top)) {
@@ -1203,6 +1203,8 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
   int rt_sum = 0;
   int tt_sum = 0;
 
+  int quant_count = 0;
+
   proc top;
   proc prev;
   prev.pid = -1;
@@ -1282,7 +1284,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       int current_time =
           prev.pid != -1 && prev.pid != top.pid ? time + ctx_time : time;
 
-      if (top.at > current_time)
+      if (top.at > current_time - ctx_time)
         break;
 
       if (!at_dequeue(atq, &top)) {
@@ -1333,7 +1335,9 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
     int proc_is_switched = prev.pid != -1 && prev.pid != top.pid;
 
     int bt_remaining = top.bt - top.sbt;
-    int bt_increment = quant;
+    int bt_increment = 1;
+    quant_count += bt_increment;
+
     int updated_bt_remaining = bt_remaining - bt_increment;
     int is_finished_before_quant = 0;
 
@@ -1389,6 +1393,29 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
 
     if ((arrived_immediately && has_ctx_switch) ||
         (!arrived_immediately && proc_is_switched)) {
+      if (prev.sbt < prev.bt) {
+        if (!draw_gant(&gant_chart, &gant_chart_len, &gant_chart_max,
+                       &gant_chart_procs, &gant_chart_procs_len,
+                       &gant_chart_procs_max, &gant_chart_lines,
+                       &gant_chart_lines_len, &gant_chart_lines_max,
+                       &gant_chart_time, &gant_chart_time_len,
+                       &gant_chart_time_max, prev.pid, time - quant_count + 1,
+                       quant_count, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
+          free_atqueue(atq);
+          free_btqueue(btq);
+          free(proc_table);
+          free(gant_chart_lines);
+          free(gant_chart_procs);
+          free(gant_chart_time);
+          fprintf(stderr,
+                  "Error: something went wrong in printing the gant chart "
+                  "in srjf algorithm\n");
+          return 0;
+        }
+      }
+
+      quant_count = 1;
+
       if (!draw_gant(
               &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
               &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
@@ -1411,27 +1438,32 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       time += ctx_time;
     }
 
-    if (!is_finished || is_finished_before_quant) {
-      if (!draw_gant(
-              &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
-              &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
-              &gant_chart_lines_len, &gant_chart_lines_max, &gant_chart_time,
-              &gant_chart_time_len, &gant_chart_time_max, top.pid, time,
-              bt_increment, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
-        free_atqueue(atq);
-        free_btqueue(btq);
-        free(proc_table);
-        free(gant_chart_lines);
-        free(gant_chart_procs);
-        free(gant_chart_time);
-        fprintf(stderr,
-                "Error: something went wrong in printing the gant chart "
-                "in srjf algorithm\n");
-        return 0;
+    time += bt_increment;
+
+    if (quant_count == quant || is_finished_before_quant) {
+      if (!is_finished || is_finished_before_quant) {
+        if (!draw_gant(&gant_chart, &gant_chart_len, &gant_chart_max,
+                       &gant_chart_procs, &gant_chart_procs_len,
+                       &gant_chart_procs_max, &gant_chart_lines,
+                       &gant_chart_lines_len, &gant_chart_lines_max,
+                       &gant_chart_time, &gant_chart_time_len,
+                       &gant_chart_time_max, top.pid, time - quant_count,
+                       quant_count, GANT_LINE_COUNT, GANT_LINE_MAX_CHAR)) {
+          free_atqueue(atq);
+          free_btqueue(btq);
+          free(proc_table);
+          free(gant_chart_lines);
+          free(gant_chart_procs);
+          free(gant_chart_time);
+          fprintf(stderr,
+                  "Error: something went wrong in printing the gant chart "
+                  "in srjf algorithm\n");
+          return 0;
+        }
+
+        quant_count = 0;
       }
     }
-
-    time += bt_increment;
 
     if (is_finished) {
       wt_sum += wt;
@@ -2555,7 +2587,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       int current_time =
           prev.pid != -1 && prev.pid != top.pid ? time + ctx_time : time;
 
-      if (top.at > current_time)
+      if (top.at > current_time - ctx_time)
         break;
 
       if (!at_dequeue(atq, &top)) {
