@@ -519,7 +519,7 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         return 0;
       }
 
-      if (top.at > time - ctx_time)
+      if (top.at > time)
         break;
 
       if (!at_dequeue(atq, &top)) {
@@ -886,7 +886,7 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         return 0;
       }
 
-      if (top.at > time - ctx_time)
+      if (top.at > time)
         break;
 
       if (!at_dequeue(atq, &top)) {
@@ -1284,7 +1284,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       int current_time =
           prev.pid != -1 && prev.pid != top.pid ? time + ctx_time : time;
 
-      if (top.at > current_time - ctx_time)
+      if (top.at > current_time)
         break;
 
       if (!at_dequeue(atq, &top)) {
@@ -2587,7 +2587,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       int current_time =
           prev.pid != -1 && prev.pid != top.pid ? time + ctx_time : time;
 
-      if (top.at > current_time - ctx_time)
+      if (top.at > current_time)
         break;
 
       if (!at_dequeue(atq, &top)) {
