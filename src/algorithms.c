@@ -273,7 +273,12 @@ int fcfs(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       }
     }
 
-    time += top.bt + ctx_time;
+    if (i == procs_len - 1) {
+      time += top.bt;
+    } else {
+      time += top.bt + ctx_time;
+    }
+
     wt_sum += wt;
     tt_sum += tt;
     rt_sum += rt;
@@ -637,7 +642,12 @@ int sjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       }
     }
 
-    time += top.bt + ctx_time;
+    if (i == procs_len - 1) {
+      time += top.bt;
+    } else {
+      time += top.bt + ctx_time;
+    }
+
     wt_sum += wt;
     tt_sum += tt;
     rt_sum += rt;
@@ -1004,7 +1014,12 @@ int ljf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       }
     }
 
-    time += top.bt + ctx_time;
+    if (i == procs_len - 1) {
+      time += top.bt;
+    } else {
+      time += top.bt + ctx_time;
+    }
+
     wt_sum += wt;
     tt_sum += tt;
     rt_sum += rt;
@@ -1241,7 +1256,11 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       if (prev.pid != -1 && prev.pid != top.pid && top.at < time + ctx_time) {
         has_ctx_switch = 1;
       } else {
-        time = top.at;
+        if (time == 0) {
+          time = top.at;
+        } else {
+          time = time;
+        }
         has_ctx_switch = 0;
       }
 
@@ -1360,11 +1379,17 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         if (has_ctx_switch) {
           wt = top.wt != -1 ? top.wt + time + ctx_time - top.at
                             : time + ctx_time - top.at;
+
+          if (wt < 0)
+            wt = 0;
         } else {
           wt = top.wt != -1 ? top.wt : 0;
         }
       } else {
         wt = (time - top.at) - top.sbt;
+
+        if (wt < 0)
+          wt = 0;
 
         if (proc_is_switched) {
           wt += ctx_time;
@@ -1391,8 +1416,7 @@ int srjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       return 0;
     }
 
-    if ((arrived_immediately && has_ctx_switch) ||
-        (!arrived_immediately && proc_is_switched)) {
+    if (has_ctx_switch || proc_is_switched) {
       if (prev.sbt < prev.bt) {
         if (!draw_gant(&gant_chart, &gant_chart_len, &gant_chart_max,
                        &gant_chart_procs, &gant_chart_procs_len,
@@ -1832,11 +1856,17 @@ int lrjf(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         if (has_ctx_switch) {
           wt = top.wt != -1 ? top.wt + time + ctx_time - top.at
                             : time + ctx_time - top.at;
+
+          if (wt < 0)
+            wt = 0;
         } else {
           wt = top.wt != -1 ? top.wt : 0;
         }
       } else {
         wt = (time - top.at) - top.sbt;
+
+        if (wt < 0)
+          wt = 0;
 
         if (proc_is_switched) {
           wt += ctx_time;
@@ -2256,7 +2286,12 @@ int hrrn(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       }
     }
 
-    time += top.bt + ctx_time;
+    if (i == procs_len - 1) {
+      time += top.bt;
+    } else {
+      time += top.bt + ctx_time;
+    }
+
     wt_sum += wt;
     tt_sum += tt;
     rt_sum += rt;
@@ -2544,7 +2579,11 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       if (prev.pid != -1 && prev.pid != top.pid && top.at < time + ctx_time) {
         has_ctx_switch = 1;
       } else {
-        time = top.at;
+        if (time == 0) {
+          time = top.at;
+        } else {
+          time = time;
+        }
         has_ctx_switch = 0;
       }
 
@@ -2661,11 +2700,17 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
         if (has_ctx_switch) {
           wt = top.wt != -1 ? top.wt + time + ctx_time - top.at
                             : time + ctx_time - top.at;
+
+          if (wt < 0)
+            wt = 0;
         } else {
           wt = top.wt != -1 ? top.wt : 0;
         }
       } else {
         wt = (time - top.at) - top.sbt;
+
+        if (wt < 0)
+          wt = 0;
 
         if (proc_is_switched) {
           wt += ctx_time;
@@ -2692,8 +2737,7 @@ int ps(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       return 0;
     }
 
-    if ((arrived_immediately && has_ctx_switch) ||
-        (!arrived_immediately && proc_is_switched)) {
+    if (has_ctx_switch || proc_is_switched) {
       if (!draw_gant(
               &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
               &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
@@ -2986,7 +3030,11 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       if (prev.pid != -1 && prev.pid != top.pid && top.at < time + ctx_time) {
         has_ctx_switch = 1;
       } else {
-        time = top.at;
+        if (time == 0) {
+          time = top.at;
+        } else {
+          time = time;
+        }
         has_ctx_switch = 0;
       }
 
@@ -3134,8 +3182,7 @@ int rr(proc *procs[MAX_PROC], int procs_len, int ctx_time, char **output_info,
       return 0;
     }
 
-    if ((arrived_immediately && has_ctx_switch) ||
-        (!arrived_immediately && proc_is_switched)) {
+    if (has_ctx_switch || proc_is_switched) {
       if (!draw_gant(
               &gant_chart, &gant_chart_len, &gant_chart_max, &gant_chart_procs,
               &gant_chart_procs_len, &gant_chart_procs_max, &gant_chart_lines,
